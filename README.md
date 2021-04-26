@@ -43,5 +43,6 @@ How much time does training take? We don't know yet for sure but is expected to 
 - Learning Invariant Representations for Reinforcement Learning without Reconstruction
 - Decoupling Representation Learning from Reinforcement Learning
 - data-efficient reinforcement learning with self-predictive representations
-- SAC:  https://spinningup.openai.com/en/latest/algorithms/sac.html
+- Soft Actor Critic (SAC) (Haarnoja et al., 2018) https://arxiv.org/abs/1801.01290  
+  Documentation: https://spinningup.openai.com/en/latest/algorithms/sac.html
 
