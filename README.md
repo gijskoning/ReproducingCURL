@@ -19,9 +19,9 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
 - ...
 - 
 ## Relevant Pages
-[Project Plan](docs/Project Plan.md)
-[Log]()
-[Agenda]()
+- [Project Plan](docs/project_plan.md)
+- [Log]()
+- [Agenda]()
 
 ## Other related papers and information
 - Soft Actor Critic (SAC) (Haarnoja et al., 2018) https://arxiv.org/abs/1801.01290  
