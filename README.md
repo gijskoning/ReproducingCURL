@@ -19,7 +19,7 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
 - ...
 - 
 ## Relevant Pages
-[Project Plan]()
+[Project Plan](docs/Project Plan.md)
 [Log]()
 [Agenda]()
 
