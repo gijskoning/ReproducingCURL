@@ -1,32 +1,13 @@
-## Reproducing CURL Project plan
-We want to reproduce the unsupervised learning steps of the paper and reuse an existing SAC Reinforcement learning algorithm.  
-https://arxiv.org/pdf/2004.04136.pdf
-Why do we want to do this? We want to learn more about Reinforcement learning and unsupervised learning. This paper combines both. ...
+# Reproducing CURL 
+##### By Gijs Koning and Chiel de Vries
+This repository houses a reproduction of [CURL](https://arxiv.org/pdf/2004.04136.pdf). This is a neural network that aims to learn a useful representation of image data to be used for reinforcement learning. 
 
-Where is the data? The data is already available and coming from simulating environment steps in the DMControl or Atari environment. _needs references_  
-How much time does training take? We don't know yet for sure but is expected to be reasonable.  
+## Motivation 
+Reinforcement learning is a promising area in the field of machine learning. It is important for the future of Robotics and industrial automation. Therefore, we would like to learn more about this subject by trying to reproduce this paper. Furthermore, CURL is an unsupervised network, meaning that the network learns without the use of a ground truth. We believe that unsupervised learning is an very important topic because of this. Labelled data is expensive and time consuming to acquire. If a neural net can learn its task without the use of labelled data, it is much cheaper to run. 
 
-### Plan
-- Week 2 (start): Create project plan, read paper in detail and startup repo.
-- Week 3: Start implementation unsupervised model with RL algorithm (Need to find SAC algorithm) and get first images from DMcontrol suite. 
-- Week 4: Work further on implementation possibly get first results.
-- Week 5: Work further on implementation. Reflect on current progress and replan coming weeks. See if any research questions come up.
-- Week 6: Training different tasks. Find possible improvements.
-- Week 7: Training etc. Start basics for blog.
-- Week 8: Continue...
-- Week 9: Continue...
-- Week 10: 90% of blog done and final runs.
-- Week 11: Blog finished and presentation created.
+The project is part of the "Seminar Computer Vision by Deep Learning" course (CS4245) at TU Delft. Our work is relevant for this course because it concerns the creation of a useful representation of image data. This is a classic computer vision task that uses state of the art neural nets to accomplish its goal.
 
-### Implementation decisions
-- Preferably we want to use the DMControl suite since it has a bit more complex and fun environments since it has only continues control environments.
-- What kind of environments do we want to use? Preferably the ones that also worked good in the paper. Answer: ...
-- Using Pytorch as Deep Learning framework.
-
-### What we want to learn
-- Unsupervised learning.
-- The use of Reinforcement Learning.
-- How to document a Deep Learning project process.
+Finally, we want to push ourselves by documenting the process thoroughly. We think this can help us greatly in our studies and teach us not only about deep learning, but also about ourselves.
 
 ### Currently working on
 - Reading the paper in detail
@@ -36,7 +17,11 @@ How much time does training take? We don't know yet for sure but is expected to 
 3 May next meeting. Things to discuss:
 - CURL is an improvement on Pixel SAC. Would it be good to also implement the baseline? It is mostly swapping the first couple of CNN layers.
 - ...
-
+- 
+## Relevant Pages
+[Project Plan]()
+[Log]()
+[Agenda]()
 
 ## Other related papers and information
 - Soft Actor Critic (SAC) (Haarnoja et al., 2018) https://arxiv.org/abs/1801.01290  
