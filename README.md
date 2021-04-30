@@ -16,7 +16,7 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
 
 ## Other related papers and information
 - [Soft Actor Critic (SAC)](https://arxiv.org/abs/1801.01290) (Haarnoja et al., 2018)   
-  [Documentation](https://spinningup.openai.com/en/latest/algorithms/sac.html)
+  [Documentation](https://spinningup.openai.com/en/latest/algorithms/sac.html)  
   [Implementation used by paper](https://github.com/denisyarats/pytorch_sac_ae) (Yarats et al., 2019): 
 - Reinforcement Learning with Augmented Data
 - Learning Invariant Representations for Reinforcement Learning without Reconstruction
