@@ -9,19 +9,10 @@ The project is part of the "Seminar Computer Vision by Deep Learning" course (CS
 
 Finally, we want to push ourselves by documenting the process thoroughly. We think this can help us greatly in our studies and teach us not only about deep learning, but also about ourselves.
 
-### Currently working on
-- Reading the paper in detail
-- Setting up basics for the project: Finding the RL algorithm, setting up model class and setup training loop.
-
-### Meetings
-3 May next meeting. Things to discuss:
-- CURL is an improvement on Pixel SAC. Would it be good to also implement the baseline? It is mostly swapping the first couple of CNN layers.
-- ...
-- 
 ## Relevant Pages
 - [Project Plan](docs/project_plan.md)
-- [Log]()
-- [Agenda]()
+- [Log](docs/log.md)
+- [Agenda](docs/agenda.md)
 
 ## Other related papers and information
 - Soft Actor Critic (SAC) (Haarnoja et al., 2018) https://arxiv.org/abs/1801.01290  
