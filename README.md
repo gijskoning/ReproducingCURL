@@ -22,7 +22,7 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
 - Learning Invariant Representations for Reinforcement Learning without Reconstruction
 - Decoupling Representation Learning from Reinforcement Learning
 - data-efficient reinforcement learning with self-predictive representations
-- [CURL github](https://github.com/MishaLaskin/curl)
+- [CURL github](https://github.com/MishaLaskin/curl)  
   [CURL for atari](https://github.com/aravindsrinivas/curl_rainbow)
 
 ### Installation instructions
