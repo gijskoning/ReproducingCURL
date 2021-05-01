@@ -10,9 +10,30 @@ class PixelEncoder(nn.Module):
         self.feature_dim = feature_dim
         self.num_layers = num_layers
 
-        raise Exception("Needs to be implemented")
+        raise Exception("Needs to be further implemented")
 
-_AVAILABLE_ENCODERS = {'pixel': PixelEncoder}  # , 'identity': IdentityEncoder}
+
+class IdentityEncoder(nn.Module):
+    """
+    Mock encoder
+    """
+    def __init__(self, obs_shape, feature_dim, num_layers, num_filters, *args):
+        super().__init__()
+
+        assert len(obs_shape) == 1
+        self.feature_dim = obs_shape[0]
+
+    def forward(self, obs, detach=False):
+        return obs
+
+    def copy_conv_weights_from(self, source):
+        pass
+
+    def log(self, L, step, log_freq):
+        pass
+
+
+_AVAILABLE_ENCODERS = {'pixel': PixelEncoder, 'identity': IdentityEncoder}
 
 
 def make_encoder(

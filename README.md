@@ -27,7 +27,8 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
   [CURL for atari](https://github.com/aravindsrinivas/curl_rainbow)
 
 
-### To start
+### Start training
 - `conda env create -f conda_env.yml`
 - `conda activate curl`
-- `bash scripts/run.sh`
+- With CURL encoder: `bash scripts/run.sh`
+- Without encoder: `bash scripts/run_identity.sh`

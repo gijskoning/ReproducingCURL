@@ -18,3 +18,5 @@ export MUJOCO_PY_MJKEY_PATH=\$HOME/.mujoco/mujoco200_linux/mjkey.txt \n\
 >>~/.bashrc
 
 ```
+### Run in pycharm
+It can happen that the license key of mujoco can't be found. Add this to the Environment variables of the run configuration: `;MJKEY_PATH=$HOME/.mujoco/mujoco200_linux/mjkey.txt`
