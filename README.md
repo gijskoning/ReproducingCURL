@@ -28,5 +28,6 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
 
 
 ### To start
-- conda env create -f conda_env.yml
-- conda activate curl
+- `conda env create -f conda_env.yml`
+- `conda activate curl`
+- `bash scripts/run.sh`
