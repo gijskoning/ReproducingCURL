@@ -13,6 +13,7 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
 - [Project Plan](docs/project_plan.md)
 - [Log](docs/log.md)
 - [Agenda](docs/agenda.md)
+- [Installation](docs/installation.md)
 
 ## Other related papers and information
 - Soft Actor Critic (SAC) (Haarnoja et al., 2018) https://arxiv.org/abs/1801.01290  
@@ -22,9 +23,10 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
 - Learning Invariant Representations for Reinforcement Learning without Reconstruction
 - Decoupling Representation Learning from Reinforcement Learning
 - data-efficient reinforcement learning with self-predictive representations
-- CURL github: https://github.com/MishaLaskin/curl
+- CURL github: https://github.com/MishaLaskin/curl  
   CURL for atari: https://github.com/aravindsrinivas/curl_rainbow
 
-### Installation instructions
-To install mujoco follow: https://github.com/openai/mujoco-py.  
-What the github page doesn't mention is that you need to add a variable to bashrc, use this command (username needs to be changed): `echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/gijs/.mujoco/mujoco200/bin" >> ~/.bashrc`
+
+### To start
+- conda env create -f conda_env.yml
+- conda activate curl

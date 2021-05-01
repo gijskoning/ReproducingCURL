@@ -9,6 +9,7 @@ dependencies:
   - absl-py
   - pyparsing
   - pillow=6.1
+  - pip
   - pip:
     - termcolor
     - git+git://github.com/deepmind/dm_control.git
