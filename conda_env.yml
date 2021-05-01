@@ -3,8 +3,8 @@ channels:
   - defaults
 dependencies:
   - python=3.6
-  - pytorch
-  - torchvision
+  - pytorch==1.8.1+cu111 # needs cuda 11.1 installed
+  - torchvision== 0.9.1+cu111
   - cudatoolkit=9.2
   - absl-py
   - pyparsing
@@ -17,6 +17,5 @@ dependencies:
     - tb-nightly
     - imageio
     - imageio-ffmpeg
-    - torchvision
     - scikit-image
     - imgaug

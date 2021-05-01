@@ -196,6 +196,7 @@ def main():
         json.dump(vars(args), f, sort_keys=True, indent=4)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print("Device in use:", device)
 
     action_shape = env.action_space.shape
 

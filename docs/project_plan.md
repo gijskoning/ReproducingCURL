@@ -11,7 +11,7 @@ The main goal is to implement the [CURL](https://arxiv.org/pdf/2004.04136.pdf) a
 - SAC implementation: TBA 
 
 ## Expected Memory usage and Training Time 
-The authors of the paper use a batch size of 512 for trainging. The forward pass of the encoder should then use about 300 MB of memory for its four convolutional layers, two linear layers and activations. We're not quite sure how the memory usage works for the momentum encoder that encodes the keys, but in the worst case this is still only double the amount of memory, which is perfectly reasonable. The SAC network is fairly small and only has 2 hidden layers of size 256. Thus, this takes about 0.5 MB of memory.
+The authors of the paper use a batch size of 512 for training. The forward pass of the encoder should then use about 300 MB of memory for its four convolutional layers, two linear layers and activations. We're not quite sure how the memory usage works for the momentum encoder that encodes the keys, but in the worst case this is still only double the amount of memory, which is perfectly reasonable. The SAC network is fairly small and only has 2 hidden layers of size 256. Thus, this takes about 0.5 MB of memory.
 
 Time cost for training is expected to be reasonable, but we do not know that for sure. That's we we will determine at a later stage how many environments we will test.
 
