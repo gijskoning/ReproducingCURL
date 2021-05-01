@@ -16,15 +16,15 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
 - [Installation](docs/installation.md)
 
 ## Other related papers and information
-- Soft Actor Critic (SAC) (Haarnoja et al., 2018) https://arxiv.org/abs/1801.01290  
-  Documentation: https://spinningup.openai.com/en/latest/algorithms/sac.html
-  Implementation used by paper (Yarats et al., 2019): https://github.com/denisyarats/pytorch_sac_ae
+- [Soft Actor Critic (SAC)](https://arxiv.org/abs/1801.01290) (Haarnoja et al., 2018)   
+  [Documentation](https://spinningup.openai.com/en/latest/algorithms/sac.html)  
+  [Implementation used by paper](https://github.com/denisyarats/pytorch_sac_ae) (Yarats et al., 2019): 
 - Reinforcement Learning with Augmented Data
 - Learning Invariant Representations for Reinforcement Learning without Reconstruction
 - Decoupling Representation Learning from Reinforcement Learning
 - data-efficient reinforcement learning with self-predictive representations
-- CURL github: https://github.com/MishaLaskin/curl  
-  CURL for atari: https://github.com/aravindsrinivas/curl_rainbow
+- [CURL github](https://github.com/MishaLaskin/curl)  
+  [CURL for atari](https://github.com/aravindsrinivas/curl_rainbow)
 
 
 ### To start
