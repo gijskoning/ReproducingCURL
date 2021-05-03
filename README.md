@@ -14,6 +14,7 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
 - [Log](docs/log.md)
 - [Agenda](docs/agenda.md)
 - [Installation](docs/installation.md)
+- [Encoders](docs/encoders.md)
 
 ## Other related papers and information
 - [Soft Actor Critic (SAC)](https://arxiv.org/abs/1801.01290) (Haarnoja et al., 2018)   
