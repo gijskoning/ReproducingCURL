@@ -32,6 +32,8 @@ This page hosts the log of both our team members.
 - Fri: Read paper, write motivation, clean documentation, estimate memory usage.
 
 ### Week 3 (03-05-2021)
+- Mon: Read SAC paper, install (most) packages, implement encoder.
+
 
 ### Week 4 (10-05-2021)
 

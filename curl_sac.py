@@ -8,6 +8,7 @@ import torch.nn.functional as F
 import copy
 import math
 
+import encoder
 import utils
 from encoder import make_encoder
 
@@ -195,6 +196,8 @@ class CURL(nn.Module):
 
     def __init__(self, obs_shape, z_dim, batch_size, critic, critic_target, output_type="continuous"):
         super(CURL, self).__init__()
+        self.encoder = make_encoder()
+        self.momentum_encoder = encoder.PixelEncoder()
 
 
 class CurlSacAgent(object):
@@ -283,7 +286,10 @@ class CurlSacAgent(object):
         )
 
         if self.encoder_type == 'pixel':
-            pass
+            self.
+
+
+
             # create CURL encoder (the 128 batch size is probably unnecessary)
             # todo CURL needs to be implemented.
             # self.CURL = CURL(obs_shape, encoder_feature_dim,
