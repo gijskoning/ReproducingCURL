@@ -20,9 +20,9 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
 - [Soft Actor Critic (SAC)](https://arxiv.org/abs/1801.01290) (Haarnoja et al., 2018)   
   [Documentation](https://spinningup.openai.com/en/latest/algorithms/sac.html)  
   [Implementation used by paper](https://github.com/denisyarats/pytorch_sac_ae) (Yarats et al., 2019): 
+- Decoupling Representation Learning from Reinforcement Learning: Follow-up paper, making it possible to train one encoder for multiple environments.
 - Reinforcement Learning with Augmented Data
 - Learning Invariant Representations for Reinforcement Learning without Reconstruction
-- Decoupling Representation Learning from Reinforcement Learning
 - data-efficient reinforcement learning with self-predictive representations
 - [CURL github](https://github.com/MishaLaskin/curl)  
   [CURL for atari](https://github.com/aravindsrinivas/curl_rainbow)
