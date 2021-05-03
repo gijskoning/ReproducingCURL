@@ -3,7 +3,10 @@
 This page contains the initial project plan we made in week 2. 
 
 ## Goal of the Reproduction
-The main goal is to implement the [CURL](https://arxiv.org/pdf/2004.04136.pdf) architecture by ourselves and test it, in combination with an existing [SAC](https://arxiv.org/pdf/1801.01290.pdf) implementation. The paper has performed many experiments on lots of different environments. It uses 16 environments from DMControl and all 26 from Atari. Since we only have limited time and resources, we plan to only test a couple (2-3) environments from DMControl. Which environments we will used specifically will be determined at a later stage. If time permits it we would love to test on more environments, but we think this is good as a start. We choose DMControl over Atari because we think the DMControl environments are more interesting since they have a continuous action space instead of a (mostly) discrete action space for the Atari games.
+The main goal is to implement the [CURL](https://arxiv.org/pdf/2004.04136.pdf) architecture by ourselves and test it, in combination with an existing [SAC](https://arxiv.org/pdf/1801.01290.pdf) implementation. 
+This will mostly be implementing the encoder model and the exponentially moving average encoder by only using details of the paper. We will reuse a part of their repo using the util functions and the RL algorithm since this is not computer vision related.
+
+The paper has performed many experiments on lots of different environments. It uses 16 environments from DMControl and all 26 from Atari. Since we only have limited time and resources, we plan to only test a couple (2-3) environments from DMControl. Which environments we will used specifically will be determined at a later stage. If time permits it we would love to test on more environments, but we think this is good as a start. We choose DMControl over Atari because we think the DMControl environments are more interesting since they have a continuous action space instead of a (mostly) discrete action space for the Atari games.
 
 ## Implementation Details
 - We use Pytorch as our Deep Learning framework.
