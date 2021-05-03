@@ -1,3 +1,4 @@
+import torch.nn
 from torch import nn
 
 
@@ -9,8 +10,24 @@ class PixelEncoder(nn.Module):
         self.obs_shape = obs_shape
         self.feature_dim = feature_dim
         self.num_layers = num_layers
+        self.num_filters = num_filters
 
-        raise Exception("Needs to be further implemented")
+        self.layers = torch.nn.Sequential()
+        self.layers.add_module("conv2d_0", nn.Conv2d(obs_shape[0], num_filters, 3, stride=2))
+        self.layers.add_module("relu_0", nn.ReLU())
+        for i in range(1, num_layers):
+            self.layers.add_module("conv2d_" + i, nn.Conv2d(num_filters, num_filters, 3))
+            self.layers.add_module("relu_" + i, nn.ReLU())
+
+        self.layers.add_module("flatten", nn.Flatten())
+        self.layers.add_module("lin_0", nn.Linear(39200, 1024))
+        self.layers.add_module("lin_1", nn.Linear(1024, feature_dim))
+        self.layers.add_module("norm", nn.LayerNorm(feature_dim))
+        self.layers.add_module("tanh", nn.Tanh())
+
+    def forward(self, x):
+        x /= 255.
+        return self.layers.forward(x)
 
 
 class IdentityEncoder(nn.Module):
