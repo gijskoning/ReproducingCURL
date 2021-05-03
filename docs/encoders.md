@@ -56,5 +56,36 @@ random square patch is cropped from the original rendering.
 Discrimination (Wu et al., 2018) wherein a query and key
 are positive pairs if they are data-augmentations of the same
 instance (example, image) and negative otherwise.
-```
+
 `The aspect ratio for cropping is 0.84, i.e., they crop a 84 x 84 image from a 100 x 100 image. They applay the same crop coordinates for the stack of frames.`
+
+The architecture given in pseudocode by the paper:  
+4 Conv layers with 32 feature maps, kernel size of 3, first layer a stride of 2 the remaining stride of 1 and all with Relu activation. 
+These layers followed by a hidden linear layer of 1024 units and output layer of 50 units ending with LayerNorm and tanh activation.
+```
+def encode(x,z_dim):
+"""
+ConvNet encoder
+args:
+B-batch_size, C-channels
+H,W-spatial_dims
+x : shape : [B, C, H, W]
+C = 3 * num_frames; 3 - R/G/B
+z_dim: latent dimension
+"""
+x = x / 255.
+# c: channels, f: filters
+# k: kernel, s: stride
+z = Conv2d(c=x.shape[1], f=32, k=3, s=2)])(
+x)
+z = ReLU(z)
+for _ in range(num_layers - 1):
+z = Conv2d((c=32, f=32, k=3, s=1))(z)
+z = ReLU(z)
+z = flatten(z)
+# in: input dim, out: output_dim, h:
+hiddens
+z = mlp(in=z.size(),out=z_dim,h=1024)
+z = LayerNorm(z)
+z = tanh(z)
+```

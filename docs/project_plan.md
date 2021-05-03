@@ -22,7 +22,11 @@ Time cost for training is expected to be reasonable, but we do not know that for
 If our work turn out to be too trivial, we purpose we extend our initial plan by one or more of the following options:
 - We  test more environments. Either from the DMControl suite or Atari. 
 - We Make our own implementation of SAC on top of CURL and compare this with the  SAC implementation used by the authors.
+- Do the same additional experiments as the paper: detaching the encoder training from the SAC algorithm learning and then visualizing what happens with the learned kernels. 
 - We find a paper that extend CURL in some way and reproduce that as well.
+  - Or extend using "Decoupling Representation Learning from Reinforcement Learning"
+  - Could extend the implementation by the paper "Improving Computational Efficiency in Visual
+    Reinforcement Learning via Stored Embeddings".
 
 ## Planning
 - __Week 2 (start):__ Create project plan, read paper in detail and startup repo.
