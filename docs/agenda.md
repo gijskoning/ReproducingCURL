@@ -9,6 +9,7 @@ This page hosts the agenda for each TA meeting on mondays.
 - CURL is an improvement on Pixel SAC. Would it be good to also implement the baseline? It is mostly swapping the first couple of CNN layers.
 - Currently we have copied the utility classes and training structure from the original repo. Is this okay to do?
 - Discuss further research options if implementation turns out to be too trivial.
+- Discuss what repo to use as a basis for the reproduction. 
 ### Week 4 (10-05-2021)
 
 ### Week 5 (17-05-2021)
