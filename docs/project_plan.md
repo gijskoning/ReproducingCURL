@@ -18,14 +18,20 @@ The authors of the paper use a batch size of 512 for training. The forward pass 
 
 Time cost for training is expected to be reasonable, but we do not know that for sure. That's we we will determine at a later stage how many environments we will test.
 
+## Further Research Options
+If our work turn out to be too trivial, we purpose we extend our initial plan by one or more of the following options:
+- We  test more environments. Either from the DMControl suite or Atari. 
+- We Make our own implementation of SAC on top of CURL and compare this with the  SAC implementation used by the authors.
+- We find a paper that extend CURL in some way and reproduce that as well.
+
 ## Planning
-- Week 2 (start): Create project plan, read paper in detail and startup repo.
-- Week 3: Start implementation unsupervised model with RL algorithm (Need to find SAC algorithm) and get first images from DMcontrol suite. 
-- Week 4: Work further on implementation possibly get first results.
-- Week 5: Work further on implementation. Reflect on current progress and replan coming weeks. See if any research questions come up.
-- Week 6: Training different tasks. Find possible improvements.
-- Week 7: Training etc. Start basics for blog.
-- Week 8: Continue...
-- Week 9: Continue...
-- Week 10: 90% of blog done and final runs.
-- Week 11: Blog finished and presentation created.
+- __Week 2 (start):__ Create project plan, read paper in detail and startup repo.
+- __Week 3:__ Start implementation unsupervised model with RL algorithm (Need to find SAC algorithm) and get first images from DMcontrol suite. 
+- __Week 4:__ Work further on implementation possibly get first results.
+- __Week 5:__ Work further on implementation. Reflect on current progress and replan coming weeks. See if any research questions come up.
+- __Week 6:__ Training different tasks. Find possible improvements.
+- __Week 7:__ Training etc. Start basics for blog.
+- __Week 8:__ Continue...
+- __Week 9:__ Continue...
+- __Week 10:__ 90% of blog done and final runs.
+- __Week 11:__ Blog finished and presentation created.
