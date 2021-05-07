@@ -1,21 +1,17 @@
-name: curl
+name: pytorch_sac_ae
 channels:
   - defaults
 dependencies:
   - python=3.6
-  - pytorch==1.8.1+cu111 # needs cuda 11.1 installed
-  - torchvision==0.9.1+cu111
+  - pytorch
+  - torchvision
   - cudatoolkit=9.2
   - absl-py
   - pyparsing
-  - pillow=6.1
-  - pip
   - pip:
     - termcolor
     - git+git://github.com/deepmind/dm_control.git
-    - git+git://github.com/1nadequacy/dmc2gym.git
+    - git+git://github.com/denisyarats/dmc2gym.git
     - tb-nightly
     - imageio
     - imageio-ffmpeg
-    - scikit-image
-    - imgaug
