@@ -33,6 +33,7 @@ This page hosts the log of both our team members.
 
 ### Week 3 (03-05-2021)
 - Mon: Read SAC paper, install (most) packages, implement encoder.
+- Fri: Research repo for SAC implementation, setup this repo in a separate branch
 
 
 ### Week 4 (10-05-2021)
