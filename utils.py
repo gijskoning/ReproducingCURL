@@ -1,3 +1,8 @@
+"""
+This file was initially copied from https://github.com/denisyarats/pytorch_sac_ae
+Changes wer made to the following classes/functions:
+"""
+
 import torch
 import numpy as np
 import torch.nn as nn
