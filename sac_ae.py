@@ -1,7 +1,8 @@
 """
 This file was initially copied from https://github.com/denisyarats/pytorch_sac_ae
 Changes were made to the following classes/functions:
-
+- SacAeAgent -> SacCurlAgent
+    -
 """
 
 import numpy as np
@@ -13,7 +14,6 @@ import math
 
 import utils
 from encoder import make_encoder
-from decoder import make_decoder
 
 LOG_FREQ = 10000
 
@@ -147,7 +147,6 @@ class Critic(nn.Module):
     ):
         super().__init__()
 
-
         self.encoder = make_encoder(
             encoder_type, obs_shape, encoder_feature_dim, num_layers,
             num_filters
@@ -189,8 +188,8 @@ class Critic(nn.Module):
             L.log_param('train_critic/q2_fc%d' % i, self.Q2.trunk[i * 2], step)
 
 
-class SacAeAgent(object):
-    """SAC+AE algorithm."""
+class SacCurlAgent(object):
+    """SAC+CULR algorithm."""
     def __init__(
         self,
         obs_shape,
@@ -214,11 +213,6 @@ class SacAeAgent(object):
         encoder_feature_dim=50,
         encoder_lr=1e-3,
         encoder_tau=0.005,
-        decoder_type='pixel',
-        decoder_lr=1e-3,
-        decoder_update_freq=1,
-        decoder_latent_lambda=0.0,
-        decoder_weight_lambda=0.0,
         num_layers=4,
         num_filters=32
     ):
@@ -228,8 +222,6 @@ class SacAeAgent(object):
         self.encoder_tau = encoder_tau
         self.actor_update_freq = actor_update_freq
         self.critic_target_update_freq = critic_target_update_freq
-        self.decoder_update_freq = decoder_update_freq
-        self.decoder_latent_lambda = decoder_latent_lambda
 
         self.actor = Actor(
             obs_shape, action_shape, hidden_dim, encoder_type,
@@ -257,27 +249,6 @@ class SacAeAgent(object):
         # set target entropy to -|A|
         self.target_entropy = -np.prod(action_shape)
 
-        self.decoder = None
-        if decoder_type != 'identity':
-            # create decoder
-            self.decoder = make_decoder(
-                decoder_type, obs_shape, encoder_feature_dim, num_layers,
-                num_filters
-            ).to(device)
-            self.decoder.apply(weight_init)
-
-            # optimizer for critic encoder for reconstruction loss
-            self.encoder_optimizer = torch.optim.Adam(
-                self.critic.encoder.parameters(), lr=encoder_lr
-            )
-
-            # optimizer for decoder
-            self.decoder_optimizer = torch.optim.Adam(
-                self.decoder.parameters(),
-                lr=decoder_lr,
-                weight_decay=decoder_weight_lambda
-            )
-
         # optimizers
         self.actor_optimizer = torch.optim.Adam(
             self.actor.parameters(), lr=actor_lr, betas=(actor_beta, 0.999)
@@ -298,8 +269,6 @@ class SacAeAgent(object):
         self.training = training
         self.actor.train(training)
         self.critic.train(training)
-        if self.decoder is not None:
-            self.decoder.train(training)
 
     @property
     def alpha(self):
@@ -372,30 +341,6 @@ class SacAeAgent(object):
         alpha_loss.backward()
         self.log_alpha_optimizer.step()
 
-    def update_decoder(self, obs, target_obs, L, step):
-        h = self.critic.encoder(obs)
-
-        if target_obs.dim() == 4:
-            # preprocess images to be in [-0.5, 0.5] range
-            target_obs = utils.preprocess_obs(target_obs)
-        rec_obs = self.decoder(h)
-        rec_loss = F.mse_loss(target_obs, rec_obs)
-
-        # add L2 penalty on latent representation
-        # see https://arxiv.org/pdf/1903.12436.pdf
-        latent_loss = (0.5 * h.pow(2).sum(1)).mean()
-
-        loss = rec_loss + self.decoder_latent_lambda * latent_loss
-        self.encoder_optimizer.zero_grad()
-        self.decoder_optimizer.zero_grad()
-        loss.backward()
-
-        self.encoder_optimizer.step()
-        self.decoder_optimizer.step()
-        L.log('train_ae/ae_loss', loss, step)
-
-        self.decoder.log(L, step, log_freq=LOG_FREQ)
-
     def update(self, replay_buffer, L, step):
         obs, action, reward, next_obs, not_done = replay_buffer.sample()
 
@@ -418,9 +363,6 @@ class SacAeAgent(object):
                 self.encoder_tau
             )
 
-        if self.decoder is not None and step % self.decoder_update_freq == 0:
-            self.update_decoder(obs, obs, L, step)
-
     def save(self, model_dir, step):
         torch.save(
             self.actor.state_dict(), '%s/actor_%s.pt' % (model_dir, step)
@@ -428,11 +370,6 @@ class SacAeAgent(object):
         torch.save(
             self.critic.state_dict(), '%s/critic_%s.pt' % (model_dir, step)
         )
-        if self.decoder is not None:
-            torch.save(
-                self.decoder.state_dict(),
-                '%s/decoder_%s.pt' % (model_dir, step)
-            )
 
     def load(self, model_dir, step):
         self.actor.load_state_dict(
@@ -441,7 +378,3 @@ class SacAeAgent(object):
         self.critic.load_state_dict(
             torch.load('%s/critic_%s.pt' % (model_dir, step))
         )
-        if self.decoder is not None:
-            self.decoder.load_state_dict(
-                torch.load('%s/decoder_%s.pt' % (model_dir, step))
-            )

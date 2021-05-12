@@ -20,7 +20,7 @@ import utils
 from logger import Logger
 from video import VideoRecorder
 
-from sac_ae import SacAeAgent
+from sac_ae import SacCurlAgent
 
 
 def parse_args():
@@ -53,16 +53,11 @@ def parse_args():
     parser.add_argument('--actor_log_std_min', default=-10, type=float)
     parser.add_argument('--actor_log_std_max', default=2, type=float)
     parser.add_argument('--actor_update_freq', default=2, type=int)
-    # encoder/decoder
+    # encoder
     parser.add_argument('--encoder_type', default='pixel', type=str)
     parser.add_argument('--encoder_feature_dim', default=50, type=int)
     parser.add_argument('--encoder_lr', default=1e-3, type=float)
     parser.add_argument('--encoder_tau', default=0.05, type=float)
-    parser.add_argument('--decoder_type', default='pixel', type=str)
-    parser.add_argument('--decoder_lr', default=1e-3, type=float)
-    parser.add_argument('--decoder_update_freq', default=1, type=int)
-    parser.add_argument('--decoder_latent_lambda', default=1e-6, type=float)
-    parser.add_argument('--decoder_weight_lambda', default=1e-7, type=float)
     parser.add_argument('--num_layers', default=4, type=int)
     parser.add_argument('--num_filters', default=32, type=int)
     # sac
@@ -102,7 +97,7 @@ def evaluate(env, agent, video, num_episodes, L, step):
 
 def make_agent(obs_shape, action_shape, args, device):
     if args.agent == 'sac_ae':
-        return SacAeAgent(
+        return SacCurlAgent(
             obs_shape=obs_shape,
             action_shape=action_shape,
             device=device,
@@ -124,11 +119,6 @@ def make_agent(obs_shape, action_shape, args, device):
             encoder_feature_dim=args.encoder_feature_dim,
             encoder_lr=args.encoder_lr,
             encoder_tau=args.encoder_tau,
-            decoder_type=args.decoder_type,
-            decoder_lr=args.decoder_lr,
-            decoder_update_freq=args.decoder_update_freq,
-            decoder_latent_lambda=args.decoder_latent_lambda,
-            decoder_weight_lambda=args.decoder_weight_lambda,
             num_layers=args.num_layers,
             num_filters=args.num_filters
         )
