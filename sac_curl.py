@@ -341,6 +341,9 @@ class SacCurlAgent(object):
         alpha_loss.backward()
         self.log_alpha_optimizer.step()
 
+    def update_encoder(self):
+        return 0
+
     def update(self, replay_buffer, L, step):
         obs, action, reward, next_obs, not_done = replay_buffer.sample()
 

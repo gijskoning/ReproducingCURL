@@ -11,8 +11,10 @@ This page hosts the agenda for each TA meeting on mondays.
 - Discuss further research options if implementation turns out to be too trivial.
 - Discuss what repo to use as a basis for the reproduction. 
 ### Week 4 (10-05-2021)
+- See week 3
 
 ### Week 5 (17-05-2021)
+- We are unsure how to exactly update the encoder from the SAC side, should we use actor, critic or both? 
 
 ### Week 6 (24-05-2021)
 
