@@ -1,3 +1,8 @@
+"""
+This file was initially copied from https://github.com/denisyarats/pytorch_sac_ae
+Changes wer made to the following classes/functions:
+"""
+
 from torch.utils.tensorboard import SummaryWriter
 from collections import defaultdict
 import json
@@ -13,8 +18,8 @@ FORMAT_CONFIG = {
         'train': [
             ('episode', 'E', 'int'), ('step', 'S', 'int'),
             ('duration', 'D', 'time'), ('episode_reward', 'R', 'float'),
-            ('batch_reward', 'BR', 'float'), ('actor_loss', 'A_LOSS', 'float'),
-            ('critic_loss', 'CR_LOSS', 'float'), ('curl_loss', 'CU_LOSS', 'float')
+            ('batch_reward', 'BR', 'float'), ('actor_loss', 'ALOSS', 'float'),
+            ('critic_loss', 'CLOSS', 'float'), ('ae_loss', 'RLOSS', 'float')
         ],
         'eval': [('step', 'S', 'int'), ('episode_reward', 'ER', 'float')]
     }

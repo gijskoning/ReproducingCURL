@@ -1,3 +1,8 @@
+"""
+This file was initially copied from https://github.com/denisyarats/pytorch_sac_ae
+Changes wer made to the following classes/functions:
+"""
+
 import imageio
 import os
 import numpy as np
@@ -18,18 +23,12 @@ class VideoRecorder(object):
 
     def record(self, env):
         if self.enabled:
-            try:
-                frame = env.render(
-                    mode='rgb_array',
-                    height=self.height,
-                    width=self.width,
-                    camera_id=self.camera_id
-                )
-            except:
-                frame = env.render(
-                    mode='rgb_array',
-                )
-    
+            frame = env.render(
+                mode='rgb_array',
+                height=self.height,
+                width=self.width,
+                camera_id=self.camera_id
+            )
             self.frames.append(frame)
 
     def save(self, file_name):
