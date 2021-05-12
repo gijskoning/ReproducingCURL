@@ -1,8 +1,13 @@
 """
 This file was initially copied from https://github.com/denisyarats/pytorch_sac_ae
 Changes were made to the following classes/functions:
-- SacAeAgent -> SacCurlAgent
-    -
+- Actor:
+    - remove encoder
+- Critic remove encoder
+- SacAeAgent -> SacCurlAgent:
+    - remove decoder
+    - add query_encoder
+    - add key_encoder
 """
 
 import numpy as np
@@ -53,22 +58,14 @@ def weight_init(m):
 
 class Actor(nn.Module):
     """MLP actor network."""
-    def __init__(
-        self, obs_shape, action_shape, hidden_dim, encoder_type,
-        encoder_feature_dim, log_std_min, log_std_max, num_layers, num_filters
-    ):
+    def __init__(self, input_dim, action_shape, hidden_dim, log_std_min, log_std_max):
         super().__init__()
-
-        self.encoder = make_encoder(
-            encoder_type, obs_shape, encoder_feature_dim, num_layers,
-            num_filters
-        )
 
         self.log_std_min = log_std_min
         self.log_std_max = log_std_max
 
         self.trunk = nn.Sequential(
-            nn.Linear(self.encoder.feature_dim, hidden_dim), nn.ReLU(),
+            nn.Linear(input_dim, hidden_dim), nn.ReLU(),
             nn.Linear(hidden_dim, hidden_dim), nn.ReLU(),
             nn.Linear(hidden_dim, 2 * action_shape[0])
         )
@@ -77,9 +74,8 @@ class Actor(nn.Module):
         self.apply(weight_init)
 
     def forward(
-        self, obs, compute_pi=True, compute_log_pi=True, detach_encoder=False
+        self, obs, compute_pi=True, compute_log_pi=True
     ):
-        obs = self.encoder(obs, detach=detach_encoder)
 
         mu, log_std = self.trunk(obs).chunk(2, dim=-1)
 
@@ -142,29 +138,21 @@ class QFunction(nn.Module):
 class Critic(nn.Module):
     """Critic network, employes two q-functions."""
     def __init__(
-        self, obs_shape, action_shape, hidden_dim, encoder_type,
-        encoder_feature_dim, num_layers, num_filters
+        self, input_dim, action_shape, hidden_dim
     ):
         super().__init__()
 
-        self.encoder = make_encoder(
-            encoder_type, obs_shape, encoder_feature_dim, num_layers,
-            num_filters
-        )
-
         self.Q1 = QFunction(
-            self.encoder.feature_dim, action_shape[0], hidden_dim
+            input_dim, action_shape[0], hidden_dim
         )
         self.Q2 = QFunction(
-            self.encoder.feature_dim, action_shape[0], hidden_dim
+            input_dim, action_shape[0], hidden_dim
         )
 
         self.outputs = dict()
         self.apply(weight_init)
 
-    def forward(self, obs, action, detach_encoder=False):
-        # detach_encoder allows to stop gradient propogation to encoder
-        obs = self.encoder(obs, detach=detach_encoder)
+    def forward(self, obs, action):
 
         q1 = self.Q1(obs, action)
         q2 = self.Q2(obs, action)
@@ -177,8 +165,6 @@ class Critic(nn.Module):
     def log(self, L, step, log_freq=LOG_FREQ):
         if step % log_freq != 0:
             return
-
-        self.encoder.log(L, step, log_freq)
 
         for k, v in self.outputs.items():
             L.log_histogram('train_critic/%s_hist' % k, v, step)
@@ -223,26 +209,29 @@ class SacCurlAgent(object):
         self.actor_update_freq = actor_update_freq
         self.critic_target_update_freq = critic_target_update_freq
 
+        # init the CURL encoders
+        self.query_encoder = make_encoder(
+            encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters
+        ).to(device)
+
+        self.key_encoder = make_encoder(
+            encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters
+        ).to(device)
+
+        # init SAC nets
         self.actor = Actor(
-            obs_shape, action_shape, hidden_dim, encoder_type,
-            encoder_feature_dim, actor_log_std_min, actor_log_std_max,
-            num_layers, num_filters
+            encoder_feature_dim, action_shape, hidden_dim, actor_log_std_min, actor_log_std_max
         ).to(device)
 
         self.critic = Critic(
-            obs_shape, action_shape, hidden_dim, encoder_type,
-            encoder_feature_dim, num_layers, num_filters
+            encoder_feature_dim, action_shape, hidden_dim
         ).to(device)
 
         self.critic_target = Critic(
-            obs_shape, action_shape, hidden_dim, encoder_type,
-            encoder_feature_dim, num_layers, num_filters
+            encoder_feature_dim, action_shape, hidden_dim
         ).to(device)
 
         self.critic_target.load_state_dict(self.critic.state_dict())
-
-        # tie encoders between actor and critic
-        self.actor.encoder.copy_conv_weights_from(self.critic.encoder)
 
         self.log_alpha = torch.tensor(np.log(init_temperature)).to(device)
         self.log_alpha.requires_grad = True
@@ -278,6 +267,7 @@ class SacCurlAgent(object):
         with torch.no_grad():
             obs = torch.FloatTensor(obs).to(self.device)
             obs = obs.unsqueeze(0)
+            # TODO add encoder
             mu, _, _, _ = self.actor(
                 obs, compute_pi=False, compute_log_pi=False
             )
@@ -287,11 +277,13 @@ class SacCurlAgent(object):
         with torch.no_grad():
             obs = torch.FloatTensor(obs).to(self.device)
             obs = obs.unsqueeze(0)
+            # TODO add encoder
             mu, pi, _, _ = self.actor(obs, compute_log_pi=False)
             return pi.cpu().data.numpy().flatten()
 
     def update_critic(self, obs, action, reward, next_obs, not_done, L, step):
         with torch.no_grad():
+            #TODO add encoder
             _, policy_action, log_pi, _ = self.actor(next_obs)
             target_Q1, target_Q2 = self.critic_target(next_obs, policy_action)
             target_V = torch.min(target_Q1,
@@ -314,8 +306,9 @@ class SacCurlAgent(object):
 
     def update_actor_and_alpha(self, obs, L, step):
         # detach encoder, so we don't update it with the actor loss
-        _, pi, log_pi, log_std = self.actor(obs, detach_encoder=True)
-        actor_Q1, actor_Q2 = self.critic(obs, pi, detach_encoder=True)
+        #TODO add encoder
+        _, pi, log_pi, log_std = self.actor(obs)
+        actor_Q1, actor_Q2 = self.critic(obs, pi)
 
         actor_Q = torch.min(actor_Q1, actor_Q2)
         actor_loss = (self.alpha.detach() * log_pi - actor_Q).mean()
@@ -361,10 +354,12 @@ class SacCurlAgent(object):
             utils.soft_update_params(
                 self.critic.Q2, self.critic_target.Q2, self.critic_tau
             )
-            utils.soft_update_params(
-                self.critic.encoder, self.critic_target.encoder,
-                self.encoder_tau
-            )
+
+            # TODO figure what needs to be done with this
+            # utils.soft_update_params(
+            #     self.critic.encoder, self.critic_target.encoder,
+            #     self.encoder_tau
+            # )
 
     def save(self, model_dir, step):
         torch.save(

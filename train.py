@@ -20,7 +20,7 @@ import utils
 from logger import Logger
 from video import VideoRecorder
 
-from sac_ae import SacCurlAgent
+from sac_curl import SacCurlAgent
 
 
 def parse_args():
@@ -34,7 +34,7 @@ def parse_args():
     # replay buffer
     parser.add_argument('--replay_buffer_capacity', default=1000000, type=int)
     # train
-    parser.add_argument('--agent', default='sac_ae', type=str)
+    parser.add_argument('--agent', default='sac_curl', type=str)
     parser.add_argument('--init_steps', default=1000, type=int)
     parser.add_argument('--num_train_steps', default=1000000, type=int)
     parser.add_argument('--batch_size', default=128, type=int)
@@ -96,7 +96,7 @@ def evaluate(env, agent, video, num_episodes, L, step):
 
 
 def make_agent(obs_shape, action_shape, args, device):
-    if args.agent == 'sac_ae':
+    if args.agent == 'sac_curl':
         return SacCurlAgent(
             obs_shape=obs_shape,
             action_shape=action_shape,
