@@ -185,11 +185,11 @@ class SacCurlAgent(object):
             obs_shape,
             action_shape,
             device,
-            hidden_dim=256,
+            hidden_dim=1024,
             discount=0.99,
-            init_temperature=0.01,
-            alpha_lr=1e-3,
-            alpha_beta=0.9,
+            init_temperature=0.1,
+            alpha_lr=1e-4,
+            alpha_beta=0.5,
             actor_lr=1e-3,
             actor_beta=0.9,
             actor_log_std_min=-10,
@@ -197,16 +197,17 @@ class SacCurlAgent(object):
             actor_update_freq=2,
             critic_lr=1e-3,
             critic_beta=0.9,
-            critic_tau=0.005,
+            critic_tau=0.01,
             critic_target_update_freq=2,
             encoder_type='pixel',
             encoder_feature_dim=50,
             encoder_lr=1e-3,
-            encoder_tau=0.005,
+            encoder_beta=0.9,
+            encoder_tau=0.05,
             num_layers=4,
             num_filters=32
     ):
-
+        
         self.obs_shape = obs_shape
         self.device = device
         self.discount = discount
@@ -223,6 +224,10 @@ class SacCurlAgent(object):
         self.key_encoder = make_encoder(
             encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters
         ).to(device)
+
+        self.key_encoder.load_state_dict(self.query_encoder.state_dict())
+
+        self.W = nn.Bilinear(encoder_feature_dim, encoder_feature_dim, encoder_feature_dim, bias=False)
 
         # init SAC nets
         self.actor = Actor(
@@ -256,6 +261,11 @@ class SacCurlAgent(object):
         self.log_alpha_optimizer = torch.optim.Adam(
             [self.log_alpha], lr=alpha_lr, betas=(alpha_beta, 0.999)
         )
+        # todo Need to check this
+        params = (list(self.query_encoder.parameters()) + list(self.W.parameters()))
+        self.constrastive_optimizer = torch.optim.Adam(
+            params, lr=encoder_lr, betas=(encoder_beta, 0.999)
+        )
 
         self.train()
         self.critic_target.train()
@@ -273,8 +283,6 @@ class SacCurlAgent(object):
         with torch.no_grad():
             obs = utils.random_crop(np.expand_dims(obs, axis=0), self.obs_shape[-1])
             obs = torch.FloatTensor(obs).to(self.device)
-            # obs = obs.unsqueeze(0)
-            # self.
             # todo encoder is not yet setup correctly!
             latent_vector = self.query_encoder(obs)
             mu, _, _, _ = self.actor(
@@ -286,7 +294,6 @@ class SacCurlAgent(object):
         with torch.no_grad():
             obs = utils.random_crop(np.expand_dims(obs, axis=0), self.obs_shape[-1])
             obs = torch.FloatTensor(obs).to(self.device)
-            # obs = obs.unsqueeze(0)
 
             # todo encoder is not yet setup correctly!
             latent_vector = self.query_encoder(obs)
@@ -296,7 +303,6 @@ class SacCurlAgent(object):
 
     def update_critic(self, obs, action, reward, next_obs, not_done, L, step):
         with torch.no_grad():
-            # todo encoder is not yet setup correctly!
             latent_vector = self.query_encoder(next_obs)
 
             _, policy_action, log_pi, _ = self.actor(latent_vector)
@@ -321,10 +327,9 @@ class SacCurlAgent(object):
 
     def update_actor_and_alpha(self, obs, L, step):
         # detach encoder, so we don't update it with the actor loss
-        # TODO add encoder
-        latent_vector = self.query_encoder(obs)
+        latent_vector = self.query_encoder(obs, detach=True)
 
-        _, pi, log_pi, log_std = self.actor(latent_vector.detach())
+        _, pi, log_pi, log_std = self.actor(latent_vector)
         actor_Q1, actor_Q2 = self.critic(latent_vector, pi)
 
         actor_Q = torch.min(actor_Q1, actor_Q2)
@@ -351,14 +356,32 @@ class SacCurlAgent(object):
         alpha_loss.backward()
         self.log_alpha_optimizer.step()
 
-    def update_encoder(self):
-        return 0
+    def update_encoder(self, obs):
+        # TODO Fix crops before updates
+        augmented_query = utils.random_crop(obs, self.obs_shape[-1])
+        augmented_key = utils.random_crop(obs, self.obs_shape[-1])
+        latent_query = self.query_encoder(augmented_query)
+        latent_key = self.key_encoder(augmented_key, detach=True)
+        # W: bilinear layer
+        logits = self.W(latent_query, latent_key.T())
+        # subtract max from logits for stability
+        logits -= torch.max(logits, dim=1)
+        labels = torch.arange(0, logits.shape[0])
+
+        self.constrastive_optimizer.zero_grad()
+        loss = torch.nn.CrossEntropyLoss()
+        out = loss(logits, labels)
+        out.backwards()
+        self.constrastive_optimizer.step()
+        utils.soft_update_params(self.query_encoder, self.key_encoder, self.encoder_tau)
 
     def update(self, replay_buffer: utils.ReplayBuffer, L, step):
         obs, action, reward, next_obs, not_done = replay_buffer.sample()
 
         L.log('train/batch_reward', reward.mean(), step)
-
+        # TODO Fix crops before updates
+        # obs, obs2 = utils.random_crop(obs), random_crop(obs)
+        self.update_encoder(obs)
         self.update_critic(obs, action, reward, next_obs, not_done, L, step)
 
         if step % self.actor_update_freq == 0:
@@ -371,12 +394,6 @@ class SacCurlAgent(object):
             utils.soft_update_params(
                 self.critic.Q2, self.critic_target.Q2, self.critic_tau
             )
-
-            # TODO figure what needs to be done with this
-            # utils.soft_update_params(
-            #     self.critic.encoder, self.critic_target.encoder,
-            #     self.encoder_tau
-            # )
 
     def save(self, model_dir, step):
         torch.save(

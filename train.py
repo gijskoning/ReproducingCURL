@@ -177,7 +177,7 @@ def main(_args=None):
     )
     shape = env.observation_space.shape
     agent = make_agent(
-        # change the image shape. Keep the frame count
+        # Change the image shape to accept cropped images. Keep the frame count
         obs_shape=(shape[0], args.image_size, args.image_size),
         action_shape=env.action_space.shape,
         args=args,
