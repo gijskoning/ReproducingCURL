@@ -329,6 +329,7 @@ class SacCurlAgent(object):
         # detach encoder, so we don't update it with the actor loss
         latent_vector = self.query_encoder(obs, detach=True)
 
+
         _, pi, log_pi, log_std = self.actor(latent_vector)
         actor_Q1, actor_Q2 = self.critic(latent_vector, pi)
 

@@ -34,7 +34,7 @@ def parse_args(_args=None):
     parser.add_argument('--action_repeat', default=1, type=int)
     parser.add_argument('--frame_stack', default=3, type=int)
     # replay buffer
-    parser.add_argument('--replay_buffer_capacity', default=1000000, type=int)
+    parser.add_argument('--replay_buffer_capacity', default=1e6, type=int)
     # train
     parser.add_argument('--agent', default='sac_curl', type=str)
     parser.add_argument('--init_steps', default=1000, type=int)
