@@ -11,6 +11,8 @@ import os
 from collections import deque
 import random
 
+from skimage.util import view_as_windows
+
 
 class eval_mode(object):
     def __init__(self, *models):
@@ -60,10 +62,10 @@ def make_dir(dir_path):
 
 def preprocess_obs(obs, bits=5):
     """Preprocessing image, see https://arxiv.org/abs/1807.03039."""
-    bins = 2**bits
+    bins = 2 ** bits
     assert obs.dtype == torch.float32
     if bits < 8:
-        obs = torch.floor(obs / 2**(8 - bits))
+        obs = torch.floor(obs / 2 ** (8 - bits))
     obs = obs / bins
     obs = obs + torch.rand_like(obs) / bins
     obs = obs - 0.5
@@ -72,7 +74,8 @@ def preprocess_obs(obs, bits=5):
 
 class ReplayBuffer(object):
     """Buffer to store environment transitions."""
-    def __init__(self, obs_shape, action_shape, capacity, batch_size, device):
+
+    def __init__(self, obs_shape, action_shape, capacity, batch_size, device, output_size):
         self.capacity = capacity
         self.batch_size = batch_size
         self.device = device
@@ -86,6 +89,7 @@ class ReplayBuffer(object):
         self.rewards = np.empty((capacity, 1), dtype=np.float32)
         self.not_dones = np.empty((capacity, 1), dtype=np.float32)
 
+        self.output_size = output_size
         self.idx = 0
         self.last_save = 0
         self.full = False
@@ -105,12 +109,11 @@ class ReplayBuffer(object):
             0, self.capacity if self.full else self.idx, size=self.batch_size
         )
 
-        obses = torch.as_tensor(self.obses[idxs], device=self.device).float()
+        obses = torch.as_tensor(random_crop(self.obses[idxs], self.output_size), device=self.device).float()
         actions = torch.as_tensor(self.actions[idxs], device=self.device)
         rewards = torch.as_tensor(self.rewards[idxs], device=self.device)
-        next_obses = torch.as_tensor(
-            self.next_obses[idxs], device=self.device
-        ).float()
+        next_obses = torch.as_tensor(random_crop(self.next_obses[idxs], self.output_size), device=self.device
+                                     ).float()
         not_dones = torch.as_tensor(self.not_dones[idxs], device=self.device)
 
         return obses, actions, rewards, next_obses, not_dones
@@ -173,3 +176,18 @@ class FrameStack(gym.Wrapper):
     def _get_obs(self):
         assert len(self._frames) == self._k
         return np.concatenate(list(self._frames), axis=0)
+
+
+def random_crop(imgs, output_size):
+    n = imgs.shape[0]
+    img_size = imgs.shape[-1]
+    crop_max = img_size - output_size
+    imgs = np.transpose(imgs, (0, 2, 3, 1))
+    w1 = np.random.randint(0, crop_max, n)
+    h1 = np.random.randint(0, crop_max, n)
+    # creates all sliding windows combinations of size (output_size)
+    windows = view_as_windows(
+        imgs, (1, output_size, output_size, 1))[..., 0, :, :, 0]
+    # selects a random window for each batch element
+    cropped_imgs = windows[np.arange(n), w1, h1]
+    return cropped_imgs

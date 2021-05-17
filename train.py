@@ -22,8 +22,10 @@ from video import VideoRecorder
 
 from sac_curl import SacCurlAgent
 
+args = None
 
-def parse_args():
+
+def parse_args(_args=None):
     parser = argparse.ArgumentParser()
     # environment
     parser.add_argument('--domain_name', default='cheetah')
@@ -73,8 +75,11 @@ def parse_args():
     parser.add_argument('--save_buffer', default=False, action='store_true')
     parser.add_argument('--save_video', default=False, action='store_true')
 
-    args = parser.parse_args()
-    return args
+    # Arguments added ourselves:
+    parser.add_argument('--pre_transform_image_size', default=100, type=int)
+    parser.add_argument('--only_cpu', default=False, action='store_true')
+
+    return parser.parse_args(_args)
 
 
 def evaluate(env, agent, video, num_episodes, L, step):
@@ -126,8 +131,9 @@ def make_agent(obs_shape, action_shape, args, device):
         assert 'agent is not supported: %s' % args.agent
 
 
-def main():
-    args = parse_args()
+def main(_args=None):
+    global args
+    args = parse_args(_args)
     utils.set_seed_everywhere(args.seed)
 
     env = dmc2gym.make(
@@ -136,8 +142,8 @@ def main():
         seed=args.seed,
         visualize_reward=False,
         from_pixels=(args.encoder_type == 'pixel'),
-        height=args.image_size,
-        width=args.image_size,
+        height=args.pre_transform_image_size,
+        width=args.pre_transform_image_size,
         frame_skip=args.action_repeat
     )
     env.seed(args.seed)
@@ -156,22 +162,23 @@ def main():
     with open(os.path.join(args.work_dir, 'args.json'), 'w') as f:
         json.dump(vars(args), f, sort_keys=True, indent=4)
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+    device = torch.device('cuda' if torch.cuda.is_available() and not args.only_cpu else 'cpu')
+    print("device used:", device)
     # the dmc2gym wrapper standardizes actions
     assert env.action_space.low.min() >= -1
     assert env.action_space.high.max() <= 1
-
     replay_buffer = utils.ReplayBuffer(
         obs_shape=env.observation_space.shape,
         action_shape=env.action_space.shape,
         capacity=args.replay_buffer_capacity,
         batch_size=args.batch_size,
-        device=device
+        device=device,
+        output_size=args.image_size
     )
-
+    shape = env.observation_space.shape
     agent = make_agent(
-        obs_shape=env.observation_space.shape,
+        # change the image shape. Keep the frame count
+        obs_shape=(shape[0], args.image_size, args.image_size),
         action_shape=env.action_space.shape,
         args=args,
         device=device
@@ -217,7 +224,9 @@ def main():
         # run training update
         if step >= args.init_steps:
             num_updates = args.init_steps if step == args.init_steps else 1
-            for _ in range(num_updates):
+            for i in range(num_updates):
+                if i % 5 == 2:
+                    print("init steps", i)
                 agent.update(replay_buffer, L, step)
 
         next_obs, reward, done, _ = env.step(action)
