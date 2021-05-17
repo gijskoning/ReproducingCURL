@@ -321,10 +321,10 @@ class SacCurlAgent(object):
 
     def update_actor_and_alpha(self, obs, L, step):
         # detach encoder, so we don't update it with the actor loss
-        # TODO add encoder
-        latent_vector = self.query_encoder(obs)
+        # Encode and Detach since actor loss shouldn't change encoder
+        latent_vector = self.query_encoder(obs).detach()
 
-        _, pi, log_pi, log_std = self.actor(latent_vector.detach())
+        _, pi, log_pi, log_std = self.actor(latent_vector)
         actor_Q1, actor_Q2 = self.critic(latent_vector, pi)
 
         actor_Q = torch.min(actor_Q1, actor_Q2)
