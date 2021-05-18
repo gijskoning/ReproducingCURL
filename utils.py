@@ -75,7 +75,7 @@ def preprocess_obs(obs, bits=5):
 class ReplayBuffer(object):
     """Buffer to store environment transitions."""
 
-    def __init__(self, obs_shape, action_shape, capacity, batch_size, device, output_size):
+    def __init__(self, obs_shape, action_shape, capacity, batch_size, device, crop_size):
         self.capacity = capacity
         self.batch_size = batch_size
         self.device = device
@@ -89,7 +89,7 @@ class ReplayBuffer(object):
         self.rewards = np.empty((capacity, 1), dtype=np.float32)
         self.not_dones = np.empty((capacity, 1), dtype=np.float32)
 
-        self.output_size = output_size
+        self.crop_size = crop_size
         self.idx = 0
         self.last_save = 0
         self.full = False
@@ -109,14 +109,17 @@ class ReplayBuffer(object):
             0, self.capacity if self.full else self.idx, size=self.batch_size
         )
 
-        obses = torch.as_tensor(random_crop(self.obses[idxs], self.output_size), device=self.device).float()
+        obses = torch.as_tensor(random_crop(self.obses[idxs], self.crop_size), device=self.device).float()
+
+        obses_other_augmentation = torch.as_tensor(random_crop(self.obses[idxs], self.crop_size),
+                                                   device=self.device).float()
         actions = torch.as_tensor(self.actions[idxs], device=self.device)
         rewards = torch.as_tensor(self.rewards[idxs], device=self.device)
-        next_obses = torch.as_tensor(random_crop(self.next_obses[idxs], self.output_size), device=self.device
+        next_obses = torch.as_tensor(random_crop(self.next_obses[idxs], self.crop_size), device=self.device
                                      ).float()
         not_dones = torch.as_tensor(self.not_dones[idxs], device=self.device)
 
-        return obses, actions, rewards, next_obses, not_dones
+        return obses, obses_other_augmentation, actions, rewards, next_obses, not_dones
 
     def save(self, save_dir):
         if self.idx == self.last_save:

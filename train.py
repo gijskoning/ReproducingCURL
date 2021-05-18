@@ -125,7 +125,8 @@ def make_agent(obs_shape, action_shape, args, device):
             encoder_lr=args.encoder_lr,
             encoder_tau=args.encoder_tau,
             num_layers=args.num_layers,
-            num_filters=args.num_filters
+            num_filters=args.num_filters,
+            batch_size=args.batch_size
         )
     else:
         assert 'agent is not supported: %s' % args.agent
@@ -173,7 +174,7 @@ def main(_args=None):
         capacity=args.replay_buffer_capacity,
         batch_size=args.batch_size,
         device=device,
-        output_size=args.image_size
+        crop_size=args.image_size
     )
     shape = env.observation_space.shape
     agent = make_agent(
