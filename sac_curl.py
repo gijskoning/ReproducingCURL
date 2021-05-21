@@ -128,6 +128,7 @@ class CurlEncoder:
 
         self.key.load_state_dict(self.query.state_dict())
         # todo not sure if bias is needed here
+        # it shouldn't I think
         self.W = nn.Bilinear(encoder_feature_dim, encoder_feature_dim, batch_size, bias=False).to(device)
         # Example of wat bilinear does:
         # def manual_bilinear(x1, x2, A, b):
