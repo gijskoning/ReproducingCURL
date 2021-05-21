@@ -118,21 +118,23 @@ class Actor(nn.Module):
         L.log_param('train_actor/fc3', self.trunk[4], step)
 
 
-class CurlEncoder:
+class CurlEncoder(nn.Module):
 
     def __init__(self, encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters, batch_size, device):
+        super().__init__()
+        # init encoders
         self.query = make_encoder(
             encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters).to(device)
         self.key = make_encoder(
             encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters).to(device)
-
         self.key.load_state_dict(self.query.state_dict())
-        # todo not sure if bias is needed here
-        # it shouldn't I think
-        self.W = nn.Bilinear(encoder_feature_dim, encoder_feature_dim, batch_size, bias=False).to(device)
-        # Example of wat bilinear does:
-        # def manual_bilinear(x1, x2, A, b):
-        #     return torch.mm(x1, torch.mm(A, x2)) + b
+
+        # init bilinear similarity matrix
+        self.W = nn.Parameter(torch.tensor((encoder_feature_dim, encoder_feature_dim)))
+
+    def similarity(self, x1, x2):
+        sim = torch.mm(x1, torch.mm(self.W, x2))
+        return sim - torch.max(sim, dim=1)
 
 
 class QFunction(nn.Module):
@@ -270,7 +272,7 @@ class SacCurlAgent(object):
             [self.log_alpha], lr=alpha_lr, betas=(alpha_beta, 0.999)
         )
 
-        params = (list(self.encoder.query.parameters()) + list(self.encoder.W.parameters()))
+        params = (list(self.encoder.query.parameters()) + list(self.encoder.W))
         self.constrastive_optimizer = torch.optim.Adam(
             params, lr=encoder_lr, betas=(encoder_beta, 0.999)
         )
@@ -369,14 +371,8 @@ class SacCurlAgent(object):
         augmented_key = obs_other_augmentation
         latent_query = self.encoder.query(augmented_query)
         latent_key = self.encoder.key(augmented_key, detach=True)
-        # W: bilinear layer
-        # todo could check if code below gives the same output as
-        #  Wz = torch.matmul(self.W, z_pos.T)  # (z_dim,B)
-        #         logits = torch.matmul(z_a, Wz)
-        logits = self.encoder.W(latent_query, latent_key)
+        logits = self.encoder.similarity(latent_query, latent_key)
 
-        # subtract max from logits for stability
-        logits -= torch.max(logits, dim=1)[0][:, None]
         # CURL paper uses .long() not sure why though
         labels = torch.arange(logits.shape[0]).long().to(self.device)
 
