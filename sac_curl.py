@@ -130,7 +130,7 @@ class CurlEncoder(nn.Module):
         self.key.load_state_dict(self.query.state_dict())
 
         # init bilinear similarity matrix
-        self.W = nn.Parameter(torch.tensor((encoder_feature_dim, encoder_feature_dim)))
+        self.W = nn.Parameter(torch.rand((encoder_feature_dim, encoder_feature_dim)))
 
     def similarity(self, x1, x2):
         """
@@ -278,10 +278,13 @@ class SacCurlAgent(object):
             [self.log_alpha], lr=alpha_lr, betas=(alpha_beta, 0.999)
         )
 
-        params = (list(self.encoder.query.parameters()) + list(self.encoder.W))
-        self.constrastive_optimizer = torch.optim.Adam(
-            params, lr=encoder_lr, betas=(encoder_beta, 0.999)
+        self.encoder_optimizer = torch.optim.Adam(
+            self.encoder.query.parameters(), lr=encoder_lr, betas=(encoder_beta, 0.999)
         )
+        self.contrastive_optimizer = torch.optim.Adam(
+            [self.encoder.W], lr=encoder_lr, betas=(encoder_beta, 0.999)
+        )
+
         self.cross_entropy_loss = nn.CrossEntropyLoss()
 
         self.train()
@@ -383,8 +386,10 @@ class SacCurlAgent(object):
         labels = torch.arange(logits.shape[0]).long().to(self.device)
 
         loss = self.cross_entropy_loss(logits, labels)
+        self.encoder_optimizer.zero_grad()
         self.constrastive_optimizer.zero_grad()
         loss.backward()
+        self.encoder_optimizer.step()
         self.constrastive_optimizer.step()
 
         utils.soft_update_params(self.encoder.query, self.encoder.key, self.encoder_tau)
