@@ -56,6 +56,31 @@ def weight_init(m):
         nn.init.orthogonal_(m.weight.data[:, :, mid, mid], gain)
 
 
+class CurlEncoder(nn.Module):
+
+    def __init__(self, encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters, device):
+        super().__init__()
+        # init encoders
+        self.query = make_encoder(
+            encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters).to(device)
+        self.key = make_encoder(
+            encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters).to(device)
+        self.key.load_state_dict(self.query.state_dict())
+
+        # init bilinear similarity matrix
+        self.W = nn.Parameter(torch.rand((encoder_feature_dim, encoder_feature_dim)).to(device))
+
+    def similarity(self, x1, x2):
+        """
+        Computes the logits and stabilizes them.
+        :param x1: querys in the latent space
+        :param x2: keys in the latent space
+        :return: logit matrix of size (B, B)
+        """
+        sim = torch.mm(x2, torch.mm(self.W, x1.T))
+        return sim - torch.max(sim, dim=1)[0]
+
+
 class Actor(nn.Module):
     """MLP actor network."""
 
@@ -116,31 +141,6 @@ class Actor(nn.Module):
         L.log_param('train_actor/fc1', self.trunk[0], step)
         L.log_param('train_actor/fc2', self.trunk[2], step)
         L.log_param('train_actor/fc3', self.trunk[4], step)
-
-
-class CurlEncoder(nn.Module):
-
-    def __init__(self, encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters, batch_size, device):
-        super().__init__()
-        # init encoders
-        self.query = make_encoder(
-            encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters).to(device)
-        self.key = make_encoder(
-            encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters).to(device)
-        self.key.load_state_dict(self.query.state_dict())
-
-        # init bilinear similarity matrix
-        self.W = nn.Parameter(torch.rand((encoder_feature_dim, encoder_feature_dim)))
-
-    def similarity(self, x1, x2):
-        """
-        Computes the logits and stabilizes them.
-        :param x1: querys in the latent space
-        :param x2: keys in the latent space
-        :return: logit matrix of size (B, B)
-        """
-        sim = torch.mm(x1, torch.mm(self.W, x2))
-        return sim - torch.max(sim, dim=1)
 
 
 class QFunction(nn.Module):
@@ -243,7 +243,9 @@ class SacCurlAgent(object):
         self.critic_target_update_freq = critic_target_update_freq
 
         # init the CURL encoder
-        self.encoder = CurlEncoder(encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters, batch_size, device)
+        self.encoder = CurlEncoder(
+            encoder_type, obs_shape, encoder_feature_dim, num_layers, num_filters, device
+        )
 
         # init SAC nets
         self.actor = Actor(
@@ -387,10 +389,10 @@ class SacCurlAgent(object):
 
         loss = self.cross_entropy_loss(logits, labels)
         self.encoder_optimizer.zero_grad()
-        self.constrastive_optimizer.zero_grad()
+        self.contrastive_optimizer.zero_grad()
         loss.backward()
         self.encoder_optimizer.step()
-        self.constrastive_optimizer.step()
+        self.contrastive_optimizer.step()
 
         utils.soft_update_params(self.encoder.query, self.encoder.key, self.encoder_tau)
 
