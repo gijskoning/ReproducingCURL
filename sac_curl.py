@@ -133,6 +133,12 @@ class CurlEncoder(nn.Module):
         self.W = nn.Parameter(torch.tensor((encoder_feature_dim, encoder_feature_dim)))
 
     def similarity(self, x1, x2):
+        """
+        Computes the logits and stabilizes them.
+        :param x1: querys in the latent space
+        :param x2: keys in the latent space
+        :return: logit matrix of size (B, B)
+        """
         sim = torch.mm(x1, torch.mm(self.W, x2))
         return sim - torch.max(sim, dim=1)
 
@@ -377,7 +383,6 @@ class SacCurlAgent(object):
         labels = torch.arange(logits.shape[0]).long().to(self.device)
 
         loss = self.cross_entropy_loss(logits, labels)
-        # todo CURL uses two optimizers one for encoder and one for contrastive loss, could look into that
         self.constrastive_optimizer.zero_grad()
         loss.backward()
         self.constrastive_optimizer.step()

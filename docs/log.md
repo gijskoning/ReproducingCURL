@@ -47,6 +47,12 @@ This page hosts the log of both our team members.
 - Wed: merge new base repo to master,
     plan/research CURL implementation
 ### Week 5 (17-05-2021)
+- Mon: Meeting with Casper,
+    make planning for week 5,
+    implement encoder update step
+- Wed: Look into bilinear similarity problems 
+- Fri: implement correct similarity,
+    address minor todos 
 
 ### Week 6 (24-05-2021)
 
