@@ -17,6 +17,7 @@ This page hosts the agenda for each TA meeting on mondays.
 - We are unsure how to exactly update the encoder from the SAC side, should we use actor, critic or both? 
 
 ### Week 6 (24-05-2021)
+- Training for 100k timesteps will take +- 15 hours on cheetah run, others might be slower/faster. What is your opinion on this duration?
 
 ### Week 7 (31-05-2021)
 

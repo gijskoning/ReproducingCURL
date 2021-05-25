@@ -52,9 +52,13 @@ This page hosts the log of both our team members.
     implement encoder update step
 - Wed: Look into bilinear similarity problems 
 - Fri: implement correct similarity,
-    address minor todos 
+    address minor todos,
+    make SAC+CURL trainable
 
 ### Week 6 (24-05-2021)
+- Mon: Meeting with Casper,
+    decide on cartpole-swingup/walker-walk task,
+    run cartpole-swingup training
 
 ### Week 7 (31-05-2021)
 
