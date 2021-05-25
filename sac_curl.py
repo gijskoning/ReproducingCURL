@@ -377,7 +377,7 @@ class SacCurlAgent(object):
         alpha_loss.backward()
         self.log_alpha_optimizer.step()
 
-    def update_encoder(self, obs, obs_other_augmentation):
+    def update_encoder(self, obs, obs_other_augmentation, L, step):
         augmented_query = obs
         augmented_key = obs_other_augmentation
         latent_query = self.encoder.query(augmented_query)
@@ -394,14 +394,17 @@ class SacCurlAgent(object):
         self.encoder_optimizer.step()
         self.contrastive_optimizer.step()
 
+        L.log('train/curl_loss', loss, step)
+
         utils.soft_update_params(self.encoder.query, self.encoder.key, self.encoder_tau)
+
 
     def update(self, replay_buffer: utils.ReplayBuffer, L, step):
         obs, obs_other_augmentation, action, reward, next_obs, not_done = replay_buffer.sample()
 
         L.log('train/batch_reward', reward.mean(), step)
 
-        self.update_encoder(obs, obs_other_augmentation)
+        self.update_encoder(obs, obs_other_augmentation, L, step)
 
         self.update_critic(obs, action, reward, next_obs, not_done, L, step)
 
@@ -424,7 +427,7 @@ class SacCurlAgent(object):
             self.encoder.key.state_dict(), '%s/encoder_key_%s.pt' % (model_dir, step)
         )
         torch.save(
-            self.encoder.W.state_dict(), '%s/encoder_W_%s.pt' % (model_dir, step)
+            self.encoder.W, '%s/encoder_W_%s.pt' % (model_dir, step)
         )
         torch.save(
             self.actor.state_dict(), '%s/actor_%s.pt' % (model_dir, step)
@@ -440,9 +443,9 @@ class SacCurlAgent(object):
         self.encoder.key.load_state_dict(
             torch.load('%s/encoder_key_%s.pt' % (model_dir, step))
         )
-        self.encoder.W.load_state_dict(
-            torch.load('%s/encoder_W_%s.pt' % (model_dir, step))
-        )
+
+        self.encoder.W = torch.load('%s/encoder_W_%s.pt' % (model_dir, step))
+
         self.actor.load_state_dict(
             torch.load('%s/actor_%s.pt' % (model_dir, step))
         )

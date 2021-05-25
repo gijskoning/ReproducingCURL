@@ -33,3 +33,4 @@ Finally, we want to push ourselves by documenting the process thoroughly. We thi
 - `conda activate curl`
 - With CURL encoder: `bash scripts/run.sh`
 - Without encoder: `bash scripts/run_identity.sh`
+- Visualize training (for cartpole): `tensorboard --logdir tmp/cartpole --host localhost  --reload_interval 30 --host 0.0.0.0`
