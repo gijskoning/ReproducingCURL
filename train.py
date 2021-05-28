@@ -154,7 +154,6 @@ def main(_args=None):
     work_dir_old = "old_tmp"
     args.work_dir += "_" + datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
     if args.load != '':
-        print(work_dir_old)
         utils.make_dir(work_dir_old)
         print(f"Continuing training {args.load}")
         shutil.copytree(args.load, work_dir_old +"/"+args.load[4:] +"_old_"+ datetime.now().strftime("%m-%d-%Y-%H-%M-%S"))
@@ -237,6 +236,7 @@ def main(_args=None):
                         torch.save(L, logger_dir + "/l.pt")
                         torch.save(L, logger_dir + "/l.pt")
                         L._sw = sw
+                    print("Done saving")
 
                 L.log('train/episode_reward', episode_reward, step)
             restarted = False
