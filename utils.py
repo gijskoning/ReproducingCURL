@@ -124,7 +124,7 @@ class ReplayBuffer(object):
     def save(self, save_dir):
         if self.idx == self.last_save:
             return
-        path = os.path.join(save_dir, '%d_%d.pt' % (self.last_save, self.idx))
+        path = os.path.join(save_dir+"/buffer", '%d_%d.pt' % (self.last_save, self.idx))
         payload = [
             self.obses[self.last_save:self.idx],
             self.next_obses[self.last_save:self.idx],
@@ -134,13 +134,14 @@ class ReplayBuffer(object):
         ]
         self.last_save = self.idx
         torch.save(payload, path)
+        torch.save(self.last_save, os.path.join(save_dir, 'last_save_buffer.pt'))
 
     def load(self, save_dir):
-        chunks = os.listdir(save_dir)
+        chunks = os.listdir(save_dir+"/buffer")
         chucks = sorted(chunks, key=lambda x: int(x.split('_')[0]))
         for chunk in chucks:
             start, end = [int(x) for x in chunk.split('.')[0].split('_')]
-            path = os.path.join(save_dir, chunk)
+            path = os.path.join(save_dir+"/buffer", chunk)
             payload = torch.load(path)
             assert self.idx == start
             self.obses[start:end] = payload[0]
@@ -149,7 +150,8 @@ class ReplayBuffer(object):
             self.rewards[start:end] = payload[3]
             self.not_dones[start:end] = payload[4]
             self.idx = end
-
+        self.last_save = torch.load(os.path.join(save_dir, 'last_save_buffer.pt'))
+        self.idx = self.last_save
 
 class FrameStack(gym.Wrapper):
     def __init__(self, env, k):

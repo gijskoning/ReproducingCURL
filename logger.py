@@ -97,12 +97,14 @@ class MetersGroup(object):
 
 class Logger(object):
     def __init__(self, log_dir, use_tb=True, config='rl'):
+        self.step = 0
+        self.episode = 0
         self._log_dir = log_dir
         if use_tb:
-            tb_dir = os.path.join(log_dir, 'tb')
-            if os.path.exists(tb_dir):
-                shutil.rmtree(tb_dir)
-            self._sw = SummaryWriter(tb_dir)
+            self.tb_dir = os.path.join(log_dir, 'tb')
+            if os.path.exists(self.tb_dir):
+                shutil.rmtree(self.tb_dir)
+            self._sw = SummaryWriter(self.tb_dir)
         else:
             self._sw = None
         self._train_mg = MetersGroup(
