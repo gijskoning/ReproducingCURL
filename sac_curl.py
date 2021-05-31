@@ -435,6 +435,9 @@ class SacCurlAgent(object):
         torch.save(
             self.critic.state_dict(), '%s/critic_%s.pt' % (model_dir, step)
         )
+        torch.save(
+            self.critic_target.state_dict(), '%s/critic_target_%s.pt' % (model_dir, step)
+        )
 
     def load(self, model_dir, step):
         self.encoder.query.load_state_dict(
@@ -451,4 +454,9 @@ class SacCurlAgent(object):
         )
         self.critic.load_state_dict(
             torch.load('%s/critic_%s.pt' % (model_dir, step))
+        )
+        # todo fix loading of saved critic target
+        # self.critic_target.load_state_dict(self.critic.state_dict())
+        self.critic_target.load_state_dict(
+            torch.load('%s/critic_target_%s.pt' % (model_dir, step))
         )
