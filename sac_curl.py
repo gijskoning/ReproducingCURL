@@ -291,6 +291,8 @@ class SacCurlAgent(object):
 
         self.train()
         self.critic_target.train()
+        self.optimizer_list = [self.actor_optimizer, self.critic_optimizer, self.encoder_optimizer,
+                               self.contrastive_optimizer, self.log_alpha_optimizer]
 
     def train(self, training=True):
         self.training = training
@@ -398,7 +400,6 @@ class SacCurlAgent(object):
 
         utils.soft_update_params(self.encoder.query, self.encoder.key, self.encoder_tau)
 
-
     def update(self, replay_buffer: utils.ReplayBuffer, L, step):
         obs, obs_other_augmentation, action, reward, next_obs, not_done = replay_buffer.sample()
 
@@ -435,6 +436,13 @@ class SacCurlAgent(object):
         torch.save(
             self.critic.state_dict(), '%s/critic_%s.pt' % (model_dir, step)
         )
+        torch.save(
+            self.critic_target.state_dict(), '%s/critic_target_%s.pt' % (model_dir, step)
+        )
+        torch.save(
+            self.log_alpha.state_dict(), '%s/log_alpha_%s.pt' % (model_dir, step)
+        )
+        torch.save([o.state_dict() for o in self.optimizer_list], '%s/optimizers_%s.pt' % (model_dir, step))
 
     def load(self, model_dir, step):
         self.encoder.query.load_state_dict(
@@ -452,3 +460,12 @@ class SacCurlAgent(object):
         self.critic.load_state_dict(
             torch.load('%s/critic_%s.pt' % (model_dir, step))
         )
+        self.critic_target.load_state_dict(
+            torch.load('%s/critic_target_%s.pt' % (model_dir, step))
+        )
+        self.log_alpha.load_state_dict(
+            torch.load('%s/log_alpha_%s.pt' % (model_dir, step))
+        )
+        optimizer_states = torch.load('%s/optimizers_%s.pt' % (model_dir, step))
+        for i in range(len(self.optimizer_list)):
+            self.optimizer_list[i].load_state_dict(optimizer_states[i])

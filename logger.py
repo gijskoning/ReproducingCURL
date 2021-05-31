@@ -2,7 +2,7 @@
 This file was initially copied from https://github.com/denisyarats/pytorch_sac_ae
 Changes were made to the following classes/functions:
 """
-
+import datetime
 from torch.utils.tensorboard import SummaryWriter
 from collections import defaultdict
 import json
@@ -83,7 +83,9 @@ class MetersGroup(object):
         for key, disp_key, ty in self._formating:
             value = data.get(key, 0)
             pieces.append(self._format(disp_key, value, ty))
-        print('| %s' % (' | '.join(pieces)))
+        now = datetime.datetime.now()
+        timestamp = now.strftime('%Y-%m-%d %H:%M:%S %Z')
+        print('| %s' % (' | '.join(pieces))+f" | {timestamp}")
 
     def dump(self, step, prefix):
         if len(self._meters) == 0:

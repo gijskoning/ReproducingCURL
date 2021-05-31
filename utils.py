@@ -2,6 +2,7 @@
 This file was initially copied from https://github.com/denisyarats/pytorch_sac_ae
 Changes were made to the following classes/functions:
 """
+import gc
 
 import torch
 import numpy as np
@@ -124,7 +125,8 @@ class ReplayBuffer(object):
     def save(self, save_dir):
         if self.idx == self.last_save:
             return
-        path = os.path.join(save_dir+"/buffer", '%d_%d.pt' % (self.last_save, self.idx))
+        path = os.path.join(save_dir + "/buffer", '%d_%d.pt' % (self.last_save, self.idx))
+        print("path joined")
         payload = [
             self.obses[self.last_save:self.idx],
             self.next_obses[self.last_save:self.idx],
@@ -132,16 +134,21 @@ class ReplayBuffer(object):
             self.rewards[self.last_save:self.idx],
             self.not_dones[self.last_save:self.idx]
         ]
+        print("Payload read")
         self.last_save = self.idx
         torch.save(payload, path)
+        print("Payload saved")
         torch.save(self.last_save, os.path.join(save_dir, 'last_save_buffer.pt'))
+        print("last_save_buffer saved")
+        del payload
+        gc.collect()
 
     def load(self, save_dir):
-        chunks = os.listdir(save_dir+"/buffer")
+        chunks = os.listdir(save_dir + "/buffer")
         chucks = sorted(chunks, key=lambda x: int(x.split('_')[0]))
         for chunk in chucks:
             start, end = [int(x) for x in chunk.split('.')[0].split('_')]
-            path = os.path.join(save_dir+"/buffer", chunk)
+            path = os.path.join(save_dir + "/buffer", chunk)
             payload = torch.load(path)
             assert self.idx == start
             self.obses[start:end] = payload[0]
@@ -152,6 +159,7 @@ class ReplayBuffer(object):
             self.idx = end
         self.last_save = torch.load(os.path.join(save_dir, 'last_save_buffer.pt'))
         self.idx = self.last_save
+
 
 class FrameStack(gym.Wrapper):
     def __init__(self, env, k):

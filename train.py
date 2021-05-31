@@ -156,10 +156,11 @@ def main(_args=None):
     if args.load != '':
         utils.make_dir(work_dir_old)
         print(f"Continuing training {args.load}")
-        shutil.copytree(args.load, work_dir_old +"/"+args.load[4:] +"_old_"+ datetime.now().strftime("%m-%d-%Y-%H-%M-%S"))
+        # shutil.copytree(args.load, work_dir_old +"/"+args.load[4:] +"_old_"+ datetime.now().strftime("%m-%d-%Y-%H-%M-%S"))
         args.work_dir = args.load
     else:
         utils.make_dir(args.work_dir)
+    print("Using folder:", args.work_dir)
     video_dir = utils.make_dir(os.path.join(args.work_dir, 'video'))
     model_dir = utils.make_dir(os.path.join(args.work_dir, 'model'))
     utils.make_dir(os.path.join(args.work_dir, 'buffer'))
@@ -184,8 +185,6 @@ def main(_args=None):
         device=device,
         crop_size=args.image_size
     )
-    if args.load != '':
-        replay_buffer.load(args.load)
     shape = env.observation_space.shape
     agent = make_agent(
         # Change the image shape to accept cropped images. Keep the frame count
@@ -196,8 +195,15 @@ def main(_args=None):
     )
     restarted = True
     if args.load != '':
+        print("Loading model and logger")
         L: Logger = torch.load(args.load + "/logger/l.pt")
         L._sw = SummaryWriter(L.tb_dir)
+        agent.load(model_dir, L.step)
+
+        print("loading replay buffer")
+        replay_buffer.load(args.load)
+        print("Done loading replay buffer")
+
         print(f"Continuing training from episode", L.episode, "and training step", L.step)
     else:
         restarted = False
@@ -221,12 +227,10 @@ def main(_args=None):
                 if step % args.eval_freq == 0:
                     L.log('eval/episode', episode, step)
                     evaluate(env, agent, video, args.num_eval_episodes, L, step)
-                    if args.save_model:
-                        print("Saving model")
-                        agent.save(model_dir, step)
                     if args.save_buffer:
                         print("Saving buffer and logger")
                         replay_buffer.save(buffer_dir)
+                        print("done saving buffer")
                         # Cannot save Summary writer so removing it temporarily from Logger
                         sw = L._sw
                         L._sw = None
@@ -234,8 +238,11 @@ def main(_args=None):
                         L.episode = episode
 
                         torch.save(L, logger_dir + "/l.pt")
-                        torch.save(L, logger_dir + "/l.pt")
                         L._sw = sw
+                        print("Done saving logger")
+                    if args.save_model:
+                        print("Saving model")
+                        agent.save(model_dir, step)
                     print("Done saving")
 
                 L.log('train/episode_reward', episode_reward, step)
