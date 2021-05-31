@@ -84,8 +84,8 @@ class MetersGroup(object):
             value = data.get(key, 0)
             pieces.append(self._format(disp_key, value, ty))
         now = datetime.datetime.now()
-        timestamp = now.strftime('%Y-%m-%d %H:%M:%S.%f %Z')
-        print('| %s' % (' | '.join(pieces))+f". {timestamp}")
+        timestamp = now.strftime('%Y-%m-%d %H:%M:%S %Z')
+        print('| %s' % (' | '.join(pieces))+f" | {timestamp}")
 
     def dump(self, step, prefix):
         if len(self._meters) == 0:
