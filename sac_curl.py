@@ -9,6 +9,7 @@ Changes were made to the following classes/functions:
     - add query_encoder
     - add key_encoder
 """
+import time
 
 import numpy as np
 import torch
@@ -293,6 +294,8 @@ class SacCurlAgent(object):
         self.critic_target.train()
         self.optimizer_list = [self.actor_optimizer, self.critic_optimizer, self.encoder_optimizer,
                                self.contrastive_optimizer, self.log_alpha_optimizer]
+        self.encoder_time = 0
+        self.start_time = time.time()
 
     def train(self, training=True):
         self.training = training
@@ -404,9 +407,12 @@ class SacCurlAgent(object):
         obs, obs_other_augmentation, action, reward, next_obs, not_done = replay_buffer.sample()
 
         L.log('train/batch_reward', reward.mean(), step)
+        start_time = time.time()
 
         self.update_encoder(obs, obs_other_augmentation, L, step)
-
+        encoder_update_time = time.time() - start_time
+        self.encoder_time += encoder_update_time
+        # print(f"Encoder update time: {encoder_update_time:.2f}", f"Total time so far: {self.encoder_time:.1f}.", f"Percentage of total time: {self.encoder_time/(time.time()-self.start_time):2f}.")
         self.update_critic(obs, action, reward, next_obs, not_done, L, step)
 
         if step % self.actor_update_freq == 0:
@@ -440,7 +446,7 @@ class SacCurlAgent(object):
             self.critic_target.state_dict(), '%s/critic_target_%s.pt' % (model_dir, step)
         )
         torch.save(
-            self.log_alpha.state_dict(), '%s/log_alpha_%s.pt' % (model_dir, step)
+            self.log_alpha, '%s/log_alpha_%s.pt' % (model_dir, step)
         )
         torch.save([o.state_dict() for o in self.optimizer_list], '%s/optimizers_%s.pt' % (model_dir, step))
 
@@ -451,7 +457,6 @@ class SacCurlAgent(object):
         self.encoder.key.load_state_dict(
             torch.load('%s/encoder_key_%s.pt' % (model_dir, step))
         )
-
         self.encoder.W = torch.load('%s/encoder_W_%s.pt' % (model_dir, step))
 
         self.actor.load_state_dict(
@@ -463,9 +468,8 @@ class SacCurlAgent(object):
         self.critic_target.load_state_dict(
             torch.load('%s/critic_target_%s.pt' % (model_dir, step))
         )
-        self.log_alpha.load_state_dict(
-            torch.load('%s/log_alpha_%s.pt' % (model_dir, step))
-        )
+        self.log_alpha = torch.load('%s/log_alpha_%s.pt' % (model_dir, step))
+
         optimizer_states = torch.load('%s/optimizers_%s.pt' % (model_dir, step))
         for i in range(len(self.optimizer_list)):
             self.optimizer_list[i].load_state_dict(optimizer_states[i])

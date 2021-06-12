@@ -1,5 +1,5 @@
 # Reinforcement Learning on your home computer with CURL
-##### Gijs Koning (nr) g.koning@student.tudelft.nl
+##### Gijs Koning (4453484) g.koning@student.tudelft.nl
 ##### Chiel de Vries (4571983) c.devries-1@student.tudelft.nl
 
 ## Introduction

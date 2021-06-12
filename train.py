@@ -77,6 +77,7 @@ def parse_args(_args=None):
     parser.add_argument('--pre_transform_image_size', default=100, type=int)
     parser.add_argument('--only_cpu', default=False, action='store_true')
     parser.add_argument('--load', default='', type=str)
+    parser.add_argument('--freeze_encoder', default=False, action='store_true')
 
     return parser.parse_args(_args)
 
@@ -132,6 +133,8 @@ def make_agent(obs_shape, action_shape, args, device):
 
 
 def main(_args=None):
+    now = datetime.now()
+    timestamp = now.strftime('%Y-%m-%d %H:%M:%S %Z')
     global args
     args = parse_args(_args)
     utils.set_seed_everywhere(args.seed)
@@ -232,14 +235,14 @@ def main(_args=None):
                         replay_buffer.save(buffer_dir)
                         print("done saving buffer")
                         # Cannot save Summary writer so removing it temporarily from Logger
-                        sw = L._sw
-                        L._sw = None
-                        L.step = step
-                        L.episode = episode
+                    sw = L._sw
+                    L._sw = None
+                    L.step = step
+                    L.episode = episode
 
-                        torch.save(L, logger_dir + "/l.pt")
-                        L._sw = sw
-                        print("Done saving logger")
+                    torch.save(L, logger_dir + "/l.pt")
+                    L._sw = sw
+                    print("Done saving logger")
                     if args.save_model:
                         print("Saving model")
                         agent.save(model_dir, step)
