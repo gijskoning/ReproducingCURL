@@ -6,9 +6,9 @@
 
 Deep learning is an amazing new tool in the world of computer science. New techniques are developed daily and there is currently no end in sight. One problem encountered by many students in this field is the insane amount of computing power that is necessary for some models. For student that want to study the field this can be a big hurdle. 
 
-CURL (Contrastive Unsupervised representations for Reinforcement Learning) [CITE] is a  model that performs representation learning for reinforcement learning agents. It can learn to do complex tasks from raw pixel data.  It promised to be more sample efficient than currently available models. This work aims to recreate the performance of the already efficient CURL model with lower compute settings, like reduced batch size and replay buffer size. This frees up a lot of memory which allows it to be run on machines that would be available for a student. 
+CURL (Contrastive Unsupervised representations for Reinforcement Learning) [CITE] is a model that performs representation learning for reinforcement learning agents. It can learn to do complex tasks from raw pixel data.  It promised to be more sample efficient than currently available models. This work aims to recreate the performance of the already efficient CURL model with lower compute settings, like reduced batch size and replay buffer size. This frees up a lot of memory which allows it to be run on machines that would be available for a student. 
 
-This work replicates CURL and  compares with another unsupervised pixel-based reinforcement learning model: PixelSAC. They are run on the same settings to level the playing field and provide a fair comparison.
+This work replicates CURL and  compares with another unsupervised pixel-based reinforcement learning model: PixelSAC. They are run on the same settings to level the playing field and provide a fair comparison. 
 
 bit about results
 
@@ -17,16 +17,20 @@ This section will briefly introduce The implementation of CURL and it's componen
 
 ![CURL-schematic](images/CURL.png) 
 ### Contrastive Learning
-Contrastive learning is a form of unsupervised representation learning. It learns to distinguish between different augmentations of the same images and augmentations of other images. A schematic overview of the system can be viewed above. The way it works is as follows. 
+Contrastive learning is a form of unsupervised representation learning. It learns to distinguish between different augmentations of the same images and augmentations of other images. A schematic overview of the system can be viewed above. The way it works is as follows:
 
-First, the observation is augmented twice, once as a query and once as a key. In this case augmentation means taking a random crop of 84 by 84 pixels (the original size is 100 by 100 pixels). 
+First, the observation is augmented twice, once as a query and once as a key. In this case augmentation means taking a random crop of 84 by 84 pixels (the original size is 100 by 100 pixels). Most contrastive learning algorithms use just one image as an input, but since CURL is designed for reinforcement learning it benefits from having temporal information as well. Therefore, a stack of three images is used which are simply stacked thogether in the same dimention as the RGB channels. Thus, creating a stack of size 9x100x100. The whole stack is cropped in the same way during augmentation. 
 
-Second, the query and the key are encoded to latent vectors of size 50. They are encoded by two different encoders, The key-encoder being a momentum updated version of the query-encoder. 
+Second, the query and the key are encoded to latent vectors of size 50. They are encoded by two different encoders, The key-encoder being a momentum updated version of the query-encoder. This means the weights of the key-encoder are updated by an exponential moving average (EMA) of the query encoder conform the formula below. The encoder itself is a simple set of 4 convolutinal layers with ReLUs followed by an MLP with one hidden layer of size 1024. 
 
-Third, a similarity is calculated between the query and a set of keys. The goal is to ensure that the query is most similar to it's corresponding key, called the _positive_, and to minimise the similarity with the other keys, called the _negatives_. The negatives are the keys of the other images int the current batch. the similarity measure used is bilinear similarity.
+![momentum](images/momentum.PNG)
 
-The loss function used to train the system is the InfoNCE loss[CITE]. It can be interpreted as the log loss of a K-way softmax classifier where the label is the positive. 
-![InfoNCE](images/InfoNCE.png)
+Third, a similarity is calculated between the query and a set of keys. The goal is to ensure that the query is most similar to it's corresponding key, called the _positive_, and to minimise the similarity with the other keys, called the _negatives_. The negatives are the keys of the other images in the current batch. The similarity measure used is bilinear similarity. The loss function used to train the system is the InfoNCE loss[CITE]. It can be interpreted as the log loss of a K-way softmax classifier where the label is the positive (k+), and W is a learnable parameter.
+
+![InfoNCE](images/InfoNCE.PNG)
+
+
+
 
 
 
@@ -45,6 +49,6 @@ The loss function used to train the system is the InfoNCE loss[CITE]. It can be 
 
 ## Results
 
-## Conclusion
+## Conclusion and Discussion
 
 ## References
