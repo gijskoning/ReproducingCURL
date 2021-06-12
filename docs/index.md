@@ -16,12 +16,13 @@ bit about results
 This section will briefly introduce The implementation of CURL and it's components. CURL uses a contrastive representation learner that provides meaningful representations from raw pixel data. The representations are then passed to a reinforcement learning model, which is Soft Actor Critic for this work.
 
 ![CURL-schematic](images/CURL.png) 
+
 ### Contrastive Learning
 Contrastive learning is a form of unsupervised representation learning. It learns to distinguish between different augmentations of the same images and augmentations of other images. A schematic overview of the system can be viewed above. The way it works is as follows:
 
-First, the observation is augmented twice, once as a query and once as a key. In this case augmentation means taking a random crop of 84 by 84 pixels (the original size is 100 by 100 pixels). Most contrastive learning algorithms use just one image as an input, but since CURL is designed for reinforcement learning it benefits from having temporal information as well. Therefore, a stack of three images is used which are simply stacked thogether in the same dimention as the RGB channels. Thus, creating a stack of size 9x100x100. The whole stack is cropped in the same way during augmentation. 
+First, the observation is augmented twice, once as a query and once as a key. In this case augmentation means taking a random crop of 84 by 84 pixels (the original size is 100 by 100 pixels). Most contrastive learning algorithms use just one image as an input, but since CURL is designed for reinforcement learning it benefits from having temporal information as well. Therefore, a stack of three images is used which are simply stacked together in the same dimension as the RGB channels. Thus, creating a stack of size 9x100x100. The whole stack is cropped in the same way during augmentation. 
 
-Second, the query and the key are encoded to latent vectors of size 50. They are encoded by two different encoders, The key-encoder being a momentum updated version of the query-encoder. This means the weights of the key-encoder are updated by an exponential moving average (EMA) of the query encoder conform the formula below. The encoder itself is a simple set of 4 convolutinal layers with ReLUs followed by an MLP with one hidden layer of size 1024. 
+Second, the query and the key are encoded to latent vectors of size 50. They are encoded by two different encoders, The key-encoder being a momentum updated version of the query-encoder. This means the weights of the key-encoder are updated by an exponential moving average (EMA) of the query encoder conform the formula below. The encoder itself is a simple set of 4 convolutional layers with ReLUs followed by an MLP with one hidden layer of size 1024, with layernorm and tanh non-linearity. 
 
 ![momentum](images/momentum.PNG)
 
@@ -29,19 +30,13 @@ Third, a similarity is calculated between the query and a set of keys. The goal 
 
 ![InfoNCE](images/InfoNCE.PNG)
 
+This is the basic setup of the contrastive learning CURL uses. However, it has one more ace up its sleeve. The encoder is not only updated using the contrastive loss, but also using the loss created in the connected reinforcement learning agent. This enables the representations created by the encoder to be useful for the specific task the agent aims to teach itself. 
 
+CURL is designed to be able to work with any reinforcement learning algorithm. Srinivas et al. [CITE] use two algorithms in their work: SAC and Rainbow DQN. This work uses just the SAC algorithm since the performance of CURL is tested on a DMC task which needs continuous input values. The way SAC works is discussed in the next section.
 
-
-
-
-
-
-
-### SAC
+### Soft Actor Critic
 
 ## Experimental Setup
-
-
 
 ### Deep Mind Control
 
