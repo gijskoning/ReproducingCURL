@@ -35,13 +35,13 @@ This is the basic setup of the contrastive learning CURL uses. However, it has o
 CURL is designed to be able to work with any reinforcement learning algorithm. Srinivas et al. [CITE] use two algorithms in their work: SAC and Rainbow DQN. This work uses just the SAC algorithm since the performance of CURL is tested on a DMC task which needs continuous input values. The way SAC works is discussed in the next section.
 
 ### Soft Actor Critic
-SAC [CITE] is a model-free deep reinforcement learning algorithm. The aim of this algorithm to improve the sample efficiency and stability compared with other state of the art RL frameworks. The full explanation of the workings of SAC is autside of the scope of this work, but it does aim to provide some intuition on how it works for the uninitiated. 
+SAC [CITE] is a model-free deep reinforcement learning algorithm. The aim of this algorithm to improve the sample efficiency and stability compared with other state of the art RL frameworks. The full explanation of the workings of SAC is outside of the scope of this work, but it does aim to provide some intuition on how it works for the uninitiated. 
 
-RL algorithms are agents. They percieve an environment and use those observations to decide what action to perfom on the environment. They decide what action to use based on a reward they receive from the environment upton performing the action. The agent aims to maximise this reward over time. With Deep RL algorithms the internals of the agents are based on deep neural networks. 
+RL algorithms are agents. They perceive an environment and use those observations to decide what action to perform on the environment. They decide what action to use based on a reward they receive from the environment upon performing the action. The agent aims to maximize this reward over time. With Deep RL algorithms the internals of the agents are based on deep neural networks. 
 
 SAC builds on previous actor critic methods and has two main components: The _actor_ and the _critic_. The actor learns to sample actions from the _policy_ and the critic learns to improve the policy based on the reward of the action and the current state of the environment. The policy is a function that determines the strategy of the agent. Together the actor and the critic aim to maximize the effectiveness of the policy to generate rewards by using a method called maximum entropy reinforcement learning. In CURL the gradient of the critic network is used to update the encoder during training. 
 
-To reiterate, the discription above is greatly oversimplefying the methods used in SAC. An in depth decription can be found in the original paper by Haarnoja et al. [CITE]
+To reiterate, the description above is greatly oversimplifying the methods used in SAC. An in depth description can be found in the original paper by Haarnoja et al. [CITE]
 
 ## Experimental Setup
 
