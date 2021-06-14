@@ -6,14 +6,14 @@
 
 Deep learning is an amazing new tool in the world of computer science. New techniques are developed daily and there is currently no end in sight. One problem encountered by many students in this field is the insane amount of computing power that is necessary for some models. For student that want to study the field this can be a big hurdle. 
 
-CURL (Contrastive Unsupervised representations for Reinforcement Learning) [CITE] is a model that performs representation learning for reinforcement learning agents. It can learn to do complex tasks from raw pixel data.  It promised to be more sample efficient than currently available models. This work aims to recreate the performance of the already efficient CURL model with lower compute settings, like reduced batch size and replay buffer size. This frees up a lot of memory which allows it to be run on machines that would be available for a student. 
+CURL (Contrastive Unsupervised representations for Reinforcement Learning) [CITE] is a model that performs representation learning for reinforcement learning (RL) agents. It can learn to do complex tasks from raw pixel data.  It promised to be more sample efficient than currently available models. This work aims to recreate the performance of the already efficient CURL model with lower compute settings, like reduced batch size and replay buffer size. This frees up a lot of memory which allows it to be run on machines that would be available for a student. 
 
-This work replicates CURL and  compares with another unsupervised pixel-based reinforcement learning model: PixelSAC. They are run on the same settings to level the playing field and provide a fair comparison. 
+This work replicates CURL and  compares with another unsupervised pixel-based RL model: PixelSAC. They are run on the same settings to level the playing field and provide a fair comparison. 
 
 bit about results
 
 ## Model
-This section will briefly introduce The implementation of CURL and it's components. CURL uses a contrastive representation learner that provides meaningful representations from raw pixel data. The representations are then passed to a reinforcement learning model, which is Soft Actor Critic for this work.
+This section will briefly introduce The implementation of CURL and it's components. CURL uses a contrastive representation learner that provides meaningful representations from raw pixel data. The representations are then passed to a RL model, which is Soft Actor Critic for this work.
 
 ![CURL-schematic](images/CURL.png) 
 
@@ -30,11 +30,18 @@ Third, a similarity is calculated between the query and a set of keys. The goal 
 
 ![InfoNCE](images/InfoNCE.PNG)
 
-This is the basic setup of the contrastive learning CURL uses. However, it has one more ace up its sleeve. The encoder is not only updated using the contrastive loss, but also using the loss created in the connected reinforcement learning agent. This enables the representations created by the encoder to be useful for the specific task the agent aims to teach itself. 
+This is the basic setup of the contrastive learning CURL uses. However, it has one more ace up its sleeve. The encoder is not only updated using the contrastive loss, but also using the loss created in the connected RL agent. This enables the representations created by the encoder to be useful for the specific task the agent aims to teach itself. 
 
 CURL is designed to be able to work with any reinforcement learning algorithm. Srinivas et al. [CITE] use two algorithms in their work: SAC and Rainbow DQN. This work uses just the SAC algorithm since the performance of CURL is tested on a DMC task which needs continuous input values. The way SAC works is discussed in the next section.
 
 ### Soft Actor Critic
+SAC [CITE] is a model-free deep reinforcement learning algorithm. The aim of this algorithm to improve the sample efficiency and stability compared with other state of the art RL frameworks. The full explanation of the workings of SAC is outside of the scope of this work, but it does aim to provide some intuition on how it works for the uninitiated. 
+
+RL algorithms are agents. They perceive an environment and use those observations to decide what action to perform on the environment. They decide what action to use based on a reward they receive from the environment upon performing the action. The agent aims to maximize this reward over time. With Deep RL algorithms the internals of the agents are based on deep neural networks. 
+
+SAC builds on previous actor critic methods and has two main components: The _actor_ and the _critic_. The actor learns to sample actions from the _policy_ and the critic learns to improve the policy based on the reward of the action and the current state of the environment. The policy is a function that determines the strategy of the agent. Together the actor and the critic aim to maximize the effectiveness of the policy to generate rewards by using a method called maximum entropy reinforcement learning. In CURL the gradient of the critic network is used to update the encoder during training. 
+
+To reiterate, the description above is greatly oversimplifying the methods used in SAC. An in depth description can be found in the original paper by Haarnoja et al. [CITE]
 
 ## Experimental Setup
 
