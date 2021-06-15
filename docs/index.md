@@ -150,13 +150,13 @@ For other observation inputs we see the same set of featuremaps activated as wel
 ### Freezing the encoder
 We also analyzed freezing the encoder after 400k timesteps to see the increase in computational efficiency during training, since the encoder update is a big part of the whole training process.
 In Figure 7 we can see that the encoder loss when training CURL with a replay buffer of 100k. The loss is already quite low and seems to be converging around 400 to 500k timesteps of training. 
-Restarting the training at timestep 400k and freezing the encoder let to Figures 8,9. We are unsure how it is possible that the total performance improved over not freezing the encoder. We think it could be because the freezed encoder produces a more consistent output but it can also be a random coincidence.
+Restarting the training at timestep 400k and freezing the encoder let to Figure 8. We are unsure how it is possible that the total performance improved over not freezing the encoder. We think it could be because the freezed encoder produces a more consistent output but it can also be a random coincidence.
 The figure visualizing the training based on training minutes shows clearly that excluding the encoder update speeds up the training process significantly. The last 400k training steps where 2.25 times faster to train with the freezed encoder.
 
 ![freeze_encoder](images/encoder_loss.png)\
-*Figure 7: Encoder frozen at timestep 400k.*\
+*Figure 7: Contrastive loss of the encoder during training of CURL with 100k replay buffer*\
 ![freeze_encoder](images/freezed_encoder_steps.png) ![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
-*Figure 8: Encoder frozen at timestep 400k.*       *Figure 9: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*
+*Figure 8: (left) Encoder frozen at timestep 400k. (right) Encoder frozen at timestep 400k with x axis visualized in training time in minutes.*
 
 ## Conclusion and Discussion
 
