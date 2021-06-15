@@ -59,7 +59,7 @@ All models are tested in the DMC suite [[4]](#4). This is a set of continous con
 The replicated CURL model is evaluated with various setting, which can be viewed in table XXX. The original paper on CURL used a batch size of 512. This used too much video memory to be able to be run on the machines used for this work. Therefore a batch size of 256 was chosen. Another setting that needed to be toned down (for one of the machines at least) is the replay buffer size. The original paper used a replay buffer of 100k images, but we tested 50k and 5k as well. All other settings were set to the default values also used by Srinivas et al. [[1]](#1). Only a single run for each experiment is done because of time constraints.
 
 ### Comparison 
-Other than testing the performance of CURL with various replay buffer sizes, it is also compared to another state-of-the-art RL model named SAC+AE (Soft Actor Critic + AutoEncoder). It uses the same SAC algorithm as CURL, but instead of using a contrastive model for representation learning, it uses an autoencoder scheme. SAC+AE is tested with the same settings as CURL to provide a fair comparison. 
+Other than testing the performance of CURL with various replay buffer sizes, it is also compared to another state-of-the-art RL model named SAC+AE (Soft Actor Critic + AutoEncoder) [[5]](#5). It uses the same SAC algorithm as CURL, but instead of using a contrastive model for representation learning, it uses an autoencoder scheme. SAC+AE is tested with the same settings as CURL to provide a fair comparison. 
 
 <!---
 To reproduce the results of the CURL paper we choose to use the Cartpole swingup problem executed in the Deep Mind Control suite environment. Which is one problems used in the paper.
@@ -102,6 +102,9 @@ Haarnoja, T., Zhou, A., Abbeel, P., & Levine, S. (2018). Soft Actor-Critic: Off-
 <a id="3">[3]</a> 
 Oord, A.V., Li, Y., & Vinyals, O. (2018). Representation Learning with Contrastive Predictive Coding. ArXiv, abs/1807.03748.
 
-<a id="3">[4]</a> 
+<a id="4">[4]</a> 
 Tassa, Y., Doron, Y., Muldal, A., Erez, T., Li, Y., Casas, D. D. L., ... & Riedmiller, M. (2018). Deepmind control suite. arXiv preprint arXiv:1801.00690.
+
+<a id="5">[5]</a> 
+Yarats, D., Zhang, A., Kostrikov, I., Amos, B., Pineau, J., & Fergus, R. (2019). Improving sample efficiency in model-free reinforcement learning from images. arXiv preprint arXiv:1910.01741.
 
