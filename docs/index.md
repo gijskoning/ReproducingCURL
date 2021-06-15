@@ -79,7 +79,10 @@ Our results of SAC+AE seem to be just below the performance (~550 for 500k envir
 
 We also compare the performance of CURL using different replay buffer sizes of 5,50 and 100k in Figure [3](#compare_replay_size), where 100k is the default used in the paper. 
 ![compare_replay_size](images/CURL_replay_compare.png)\
-*Figure 4: Same comparison between CURL and SAC+AE as in previous figure but with environment steps until 1e6.*\
+*Figure 4: Comparison of CURL with different replay buffer sizes.*\
+
+![compare_replay_size](images/SAC-AE_replay_compare.png.png)\
+*Figure 4: Comparison of SAC+AE with different replay buffer sizes.*\
 
 
 ### Visualizing the encoder
@@ -92,7 +95,11 @@ We see the same set of featuremaps activated for other observation inputs as wel
 
 
 ### Freezing the encoder
-
+todo\
+![freeze_encoder](images/freezed_encoder_steps.png)\
+*Figure 5: Encoder freezed at timestep 400k.*\
+![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
+*Figure 6: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*\
 ## Conclusion and Discussion
 
 ## References
