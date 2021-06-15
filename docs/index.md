@@ -119,7 +119,7 @@ The performances of CURL and SAC+AE with batch size 256 are also compared with t
 </table>  
 *Table 1: Comparison of CURL and SAC+AE with batch size 256 and 512. The columns with batch size 512 contain the means and standard deviation over 10 runs. The columns with batch size 512 contain the average of the last 20k environment steps.*
 
-
+<!---
 We compare the CURL performance on the Cartpole problem with one of the baselines used in the paper, the SAC+AE method and according to the paper CURL shousld outperform SAC+AE for 100k and 500 environment step scores. However, since our personal computers did not have the video memory size that is needed for the big batch size used in CURL we can expect different results than in the paper.\
 Figure 2 shows that based on our results CURL outperforms SAC+AE after 100k environments steps, but the difference is negligible after 500k steps. Next to that when training further than 500.000 steps SAC+AE outperforms CURL, as can be seen clearly in Figure 2.\ 
 The reason that CURL is outperformed could be because CURL does not use a batch size of 512 in our experiments. Compared to the paper, our results are lower with only a score of ~300 and ~520 for 100k and 500k steps respectively while the paper shows that CURL can achieve 582 and 841.
@@ -135,7 +135,7 @@ We also compare the performance of CURL using different replay buffer sizes of 5
 
 ![compare_replay_size](images/SAC-AE_replay_compare.png)\
 *Figure 5: Comparison of SAC+AE with different replay buffer sizes.*
-
+-->
 
 ### Visualizing the encoder
 The encoder converts the image input into a smaller latent space. We can visualize the featuremaps of one of the convolutional layers to see what the encoder is focussing on.\
@@ -154,11 +154,12 @@ Restarting the training at timestep 400k and freezing the encoder let to Figures
 The figure visualizing the training based on training minutes shows clearly that excluding the encoder update speeds up the training process significantly. The last 400k training steps where 2.25 times faster to train with the freezed encoder.
 
 ![freeze_encoder](images/encoder_loss.png)\
-*Figure 7: Encoder freezed at timestep 400k.*\
+*Figure 7: Encoder frozen at timestep 400k.*\
 ![freeze_encoder](images/freezed_encoder_steps.png) ![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
-*Figure 8: Encoder freezed at timestep 400k.*       *Figure 9: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*
+*Figure 8: Encoder frozen at timestep 400k.*       *Figure 9: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*
 
 ## Conclusion and Discussion
+
 
 
 ## References
