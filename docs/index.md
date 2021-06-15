@@ -129,7 +129,7 @@ Our results of SAC+AE seem to be just below the performance (~550 for 500k envir
 ![compare_sac_and_curl_big](images/compare_sac_and_curl_big.png)\
 *Figure 3: Same comparison between CURL and SAC+AE as in previous figure but with environment steps until 1e6.*
 
-We also compare the performance of CURL using different replay buffer sizes of 5,50 and 100k in Figure [4](#compare_replay_size), where 100k is the default used in the paper.  
+We also compare the performance of CURL and SAC+AE using different replay buffer sizes of 5,50 and 100k in Figures 4 and 5, where 100k is the default used in the CURL paper.  
 ![compare_replay_size](images/CURL_replay_compare.png)\
 *Figure 4: Comparison of CURL with different replay buffer sizes.*
 
@@ -139,7 +139,7 @@ We also compare the performance of CURL using different replay buffer sizes of 5
 
 ### Visualizing the encoder
 The encoder converts the image input into a smaller latent space. We can visualize the featuremaps of one of the convolutional layers to see what the encoder is focussing on.\
-This observation image is given to the encoder model:\
+A observation is given to the encoder model, the stack of its three images is visualized below:\
 ![observation_image](images/example_observation.png)\
 and creates these 32 featuremaps after the first convolutional layer with Relu activation:\
 ![encoder_visualization](images/featuremaps_conv_1.png).\
