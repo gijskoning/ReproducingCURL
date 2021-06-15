@@ -8,9 +8,7 @@ Deep learning is an amazing new tool in the world of computer science. New techn
 
 CURL (Contrastive Unsupervised representations for Reinforcement Learning) [[1]](#1) is a model that performs representation learning for reinforcement learning (RL) agents. It can learn to do complex tasks from raw pixel data.  It promised to be more sample efficient than currently available models. This work aims to recreate the performance of the already efficient CURL model with lower compute settings, like reduced batch size and replay buffer size. This frees up a lot of memory which allows it to be run on machines that would be available for a student. 
 
-This work replicates CURL and  compares with another unsupervised pixel-based RL model: SAC+AE. They are run on the same settings to level the playing field and provide a fair comparison. 
-
-bit about results
+This work replicates CURL and  compares with another unsupervised pixel-based RL model: SAC+AE. They are run on the same settings to level the playing field and provide a fair comparison.
 
 ## Model
 This section will briefly introduce The implementation of CURL and it's components. CURL uses a contrastive representation learner that provides meaningful representations from raw pixel data. The representations are then passed to a RL model, which is Soft Actor Critic for this work.
@@ -117,7 +115,7 @@ The performances of CURL and SAC+AE with batch size 256 are also compared with t
   </tr>
 </tbody>
 </table>  
-*Table 1: Comparison of CURL and SAC+AE with batch size 256 and 512. The columns with batch size 512 contain the means and standard deviation over 10 runs. The columns with batch size 512 contain the average of the last 20k environment steps.*
+*Table 1: Comparison of CURL and SAC+AE with batch size 256 and 512. The columns with batch size 512 contain the means and standard deviation over 10 runs. The columns with batch size 256 contain the average of the last 20k environment steps.*
 
 
 We compare the CURL performance on the Cartpole problem with one of the baselines used in the paper, the SAC+AE method and according to the paper CURL shousld outperform SAC+AE for 100k and 500 environment step scores. However, since our personal computers did not have the video memory size that is needed for the big batch size used in CURL we can expect different results than in the paper.\
@@ -151,13 +149,17 @@ For other observation inputs we see the same set of featuremaps activated as wel
 We also analyzed freezing the encoder after 400k timesteps to see the increase in computational efficiency during training, since the encoder update is a big part of the whole training process.
 In Figure 7 we can see that the encoder loss when training CURL with a replay buffer of 100k. The loss is already quite low and seems to be converging around 400 to 500k timesteps of training. 
 Restarting the training at timestep 400k and freezing the encoder let to Figure 8. We are unsure how it is possible that the total performance improved over not freezing the encoder. We think it could be because the freezed encoder produces a more consistent output but it can also be a random coincidence.
-The figure visualizing the training based on training minutes shows clearly that excluding the encoder update speeds up the training process significantly. The last 400k training steps where 2.25 times faster to train with the freezed encoder.
-
+The figure visualizing the training based on training minutes shows clearly that excluding the encoder update speeds up the training process significantly. The last 400k training steps where 2.25 times faster to train with the freezed encoder.\
 ![freeze_encoder](images/encoder_loss.png)\
 *Figure 7: Contrastive loss of the encoder during training of CURL with 100k replay buffer*\
 ![freeze_encoder](images/freezed_encoder_steps.png) ![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
 *Figure 8: (left) Encoder freezed at timestep 400k. (right) Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*
-## Conclusion and Discussion
+## Conclusion
+We experimented with the CURL and baseline algorithm SAC+AE and compared the performances on the DCS Cartpole environment. Sadly the full batch size of 512 could not be used but we could show the difference with the lower batch size of 256.\
+CURL and the SAC+AE actually produced very similar results for the first 500k timesteps. The reason that the paper performs better than that we showed can be explained by the difference in batch size.\
+Next to the testing the sample efficiency we compared the algorithms with different replay buffer sizes and showed that CURL performs better with a bigger replay buffer.\
+At last we analyzed the encoder by visualizing the featuremaps and found that freezing the encoder when the contrastive loss is low improved the training time and maintain the same performance.
+
 
 
 ## References
