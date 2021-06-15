@@ -115,7 +115,7 @@ Restarting the training at timestep 400k and freezing the encoder let to Figures
 The figure visualizing the training based on training minutes shows clearly that excluding the encoder update speeds up the training process significantly. The last 400k training steps where 2.25 times faster to train with the freezed encoder.
 
 ![freeze_encoder](images/encoder_loss.png)\
-*Figure 7: Encoder freezed at timestep 400k.*\
+*Figure 7: Contrastive loss of the encoder during training of CURL with 100k replay buffer*\
 ![freeze_encoder](images/freezed_encoder_steps.png) ![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
 *Figure 8: Encoder freezed at timestep 400k.*       *Figure 9: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*
 
