@@ -82,9 +82,9 @@ When comparing CURL to SAC+AE it is clear that CURL achieves higher scores in th
 
 
 We compare the CURL performance on the Cartpole problem with one of the baselines used in the paper, the SAC+AE method and according to the paper CURL shousld outperform SAC+AE for 100k and 500 environment step scores. However, since our personal computers did not have the video memory size that is needed for the big batch size used in CURL we can expect different results than in the paper.\
-Figure 1 shows that based on our results CURL outperforms SAC+AE after 100k environments steps, but the difference is negligible after 500k steps. Next to that when training further than 500.000 steps SAC+AE outperforms CURL, as can be seen clearly in Figure 2.\ 
+Figure 2 shows that based on our results CURL outperforms SAC+AE after 100k environments steps, but the difference is negligible after 500k steps. Next to that when training further than 500.000 steps SAC+AE outperforms CURL, as can be seen clearly in Figure 2.\ 
 The reason that CURL is outperformed could be because CURL does not use a batch size of 512 in our experiments. Compared to the paper, our results are lower with only a score of ~300 and ~520 for 100k and 500k steps respectively while the paper shows that CURL can achieve 582 and 841.
-Our results of SAC+AE seem to be just below the performance compared to their paper. This could be explained by the smaller replay buffer of 1e5 instead of 1e6 or that we use a bigger batch size of 256.  
+Our results of SAC+AE seem to be just below the performance (~550 for 500k environment steps) compared to their paper (~750 reward after 500k environment steps). This could be explained by the smaller replay buffer of 1e5 instead of 1e6 or that we use a bigger batch size of 256.  
 ![compare_sac_and_curl](images/compare_sac_and_curl.png)\
 *Figure 2: Comparison between CURL and SAC+AE where in general CURL outperforms SAC+AE.*\
 ![compare_sac_and_curl_big](images/compare_sac_and_curl_big.png)\
@@ -92,7 +92,10 @@ Our results of SAC+AE seem to be just below the performance compared to their pa
 
 We also compare the performance of CURL using different replay buffer sizes of 5,50 and 100k in Figure [3](#compare_replay_size), where 100k is the default used in the paper. 
 ![compare_replay_size](images/CURL_replay_compare.png)\
-*Figure 4: Same comparison between CURL and SAC+AE as in previous figure but with environment steps until 1e6.*\
+*Figure 4: Comparison of CURL with different replay buffer sizes.*\
+
+![compare_replay_size](images/SAC-AE_replay_compare.png.png)\
+*Figure 4: Comparison of SAC+AE with different replay buffer sizes.*\
 
 
 ### Visualizing the encoder
@@ -103,11 +106,14 @@ Some things can be noticed: Featuremaps analyze different timesteps, for example
 Second, a lot of featuremaps are not active at all. We are not sure why this is the case, it could be that 32 featuremaps are overkill for the first convolutional layer for this environment.
 We see the same set of featuremaps activated for other observation inputs as well.
 
-## Discussion
-It was 
+### Freezing the encoder
+todo\
+![freeze_encoder](images/freezed_encoder_steps.png)\
+*Figure 5: Encoder freezed at timestep 400k.*\
+![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
+*Figure 6: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*\
 
-## Conclusion
-
+## Conclusion and Discussion
 
 
 ## References

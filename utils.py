@@ -143,11 +143,13 @@ class ReplayBuffer(object):
         del payload
         gc.collect()
 
-    def load(self, save_dir):
+    def load(self, save_dir, max=1e10):
         chunks = os.listdir(save_dir + "/buffer")
         chucks = sorted(chunks, key=lambda x: int(x.split('_')[0]))
         for chunk in chucks:
             start, end = [int(x) for x in chunk.split('.')[0].split('_')]
+            if start > max or end > max:
+                continue
             path = os.path.join(save_dir + "/buffer", chunk)
             payload = torch.load(path)
             assert self.idx == start
@@ -158,6 +160,8 @@ class ReplayBuffer(object):
             self.not_dones[start:end] = payload[4]
             self.idx = end
         self.last_save = torch.load(os.path.join(save_dir, 'last_save_buffer.pt'))
+        if self.last_save > max:
+            self.last_save = max
         self.idx = self.last_save
 
 
