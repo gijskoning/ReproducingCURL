@@ -153,7 +153,7 @@ The figure visualizing the training based on training minutes shows clearly that
 ![freeze_encoder](images/encoder_loss.png)\
 *Figure 7: Contrastive loss of the encoder during training of CURL with 100k replay buffer*\
 ![freeze_encoder](images/freezed_encoder_steps.png) ![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
-*Figure 8: (left) Encoder freezed at timestep 400k. (right) Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*
+*Figure 8: (left) Encoder frozen at timestep 400k. (right) Encoder frozen at timestep 400k with x axis visualized in training time in minutes.*
 ## Conclusion
 We experimented with the CURL and baseline algorithm SAC+AE and compared the performances on the DCS Cartpole environment. Sadly the full batch size of 512 could not be used but we could show the difference with the lower batch size of 256.\
 CURL and the SAC+AE actually produced very similar results for the first 500k timesteps. The reason that the paper performs better than that we showed can be explained by the difference in batch size.\
