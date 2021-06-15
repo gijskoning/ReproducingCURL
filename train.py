@@ -77,7 +77,7 @@ def parse_args(_args=None):
     parser.add_argument('--pre_transform_image_size', default=100, type=int)
     parser.add_argument('--only_cpu', default=False, action='store_true')
     parser.add_argument('--load', default='', type=str)
-    parser.add_argument('--freeze_encoder', default=False, action='store_true')
+    parser.add_argument('--freeze_encoder', default=5e8, type=int)
 
     return parser.parse_args(_args)
 
@@ -201,10 +201,12 @@ def main(_args=None):
         print("Loading model and logger")
         L: Logger = torch.load(args.load + "/logger/l.pt")
         L._sw = SummaryWriter(L.tb_dir)
+        if L.step > args.freeze_encoder:
+            L.step = args.freeze_encoder
         agent.load(model_dir, L.step)
 
         print("loading replay buffer")
-        replay_buffer.load(args.load)
+        replay_buffer.load(args.load, args.freeze_encoder)
         print("Done loading replay buffer")
 
         print(f"Continuing training from episode", L.episode, "and training step", L.step)
@@ -271,7 +273,7 @@ def main(_args=None):
             for i in range(num_updates):
                 if i % 5 == 2:
                     print("init steps", i)
-                agent.update(replay_buffer, L, step)
+                agent.update(replay_buffer, L, step, freeze_encoder=step >= args.freeze_encoder)
 
         next_obs, reward, done, _ = env.step(action)
 

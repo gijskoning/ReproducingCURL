@@ -403,17 +403,16 @@ class SacCurlAgent(object):
 
         utils.soft_update_params(self.encoder.query, self.encoder.key, self.encoder_tau)
 
-    def update(self, replay_buffer: utils.ReplayBuffer, L, step):
+    def update(self, replay_buffer: utils.ReplayBuffer, L, step, freeze_encoder=False):
         obs, obs_other_augmentation, action, reward, next_obs, not_done = replay_buffer.sample()
-
         L.log('train/batch_reward', reward.mean(), step)
         start_time = time.time()
-
-        self.update_encoder(obs, obs_other_augmentation, L, step)
+        if not freeze_encoder:
+            self.update_encoder(obs, obs_other_augmentation, L, step)
         encoder_update_time = time.time() - start_time
         self.encoder_time += encoder_update_time
         # print(f"Encoder update time: {encoder_update_time:.2f}", f"Total time so far: {self.encoder_time:.1f}.", f"Percentage of total time: {self.encoder_time/(time.time()-self.start_time):2f}.")
-        self.update_critic(obs, action, reward, next_obs, not_done, L, step)
+        self.update_critic(obs, action, reward, next_obs, not_done, L, step, freeze_encoder)
 
         if step % self.actor_update_freq == 0:
             self.update_actor_and_alpha(obs, L, step)
