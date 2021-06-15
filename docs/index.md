@@ -50,6 +50,8 @@ To reiterate, the description above is greatly oversimplifying the methods used 
 ### Training
 
 ## Results
+### Visualizing the encoder
+We thought it would be interesting to see what the first convolutional layer of the encoder would analyze. The observation image ![observation_image](images/example_observation.png) given to the encoder model creates these 32 featuremaps ![encoder_visualization](images/featuremaps_conv_1.png).
 
 ## Conclusion and Discussion
 
