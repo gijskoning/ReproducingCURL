@@ -9,6 +9,6 @@ for f in files:
 
     time_steps, rewards, time_stamps, time_elapsed = help.read_file(filename, 62500)
     rewards = np.array(rewards)
-    
+
     avg = np.mean(rewards[-21:])
     print(f, ":", avg)
