@@ -77,7 +77,7 @@ Our results of SAC+AE seem to be just below the performance (~550 for 500k envir
 ![compare_sac_and_curl_big](images/compare_sac_and_curl_big.png)\
 *Figure 3: Same comparison between CURL and SAC+AE as in previous figure but with environment steps until 1e6.*\
 
-We also compare the performance of CURL using different replay buffer sizes of 5,50 and 100k in Figure [3](#compare_replay_size), where 100k is the default used in the paper. 
+We also compare the performance of CURL using different replay buffer sizes of 5,50 and 100k in Figure [3](#compare_replay_size), where 100k is the default used in the paper.\ 
 ![compare_replay_size](images/CURL_replay_compare.png)\
 *Figure 4: Comparison of CURL with different replay buffer sizes.*\
 
@@ -87,7 +87,8 @@ We also compare the performance of CURL using different replay buffer sizes of 5
 
 ### Visualizing the encoder
 The encoder converts the image input into a smaller latent space. We can visualize the featuremaps of one of the convolutional layers to see what the encoder is looking at.\
-This observation image is given to the encoder model: ![observation_image](images/example_observation.png)\
+This observation image is given to the encoder model:\
+![observation_image](images/example_observation.png)\
 and creates these 32 featuremaps after the first convolutional layer with Relu activation: ![encoder_visualization](images/featuremaps_conv_1.png).\
 Some things can be noticed: Featuremaps analyze different timesteps, for example 1 and 2 analyze a different timestep as can be seen from the angle of the cartpole stick. 
 Second, a lot of featuremaps are not active at all. We are not sure why this is the case, it could be that 32 featuremaps are overkill for the first convolutional layer for this environment.
