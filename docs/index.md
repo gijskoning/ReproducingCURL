@@ -17,6 +17,7 @@ This section will briefly introduce The implementation of CURL and it's componen
 
 ![CURL-schematic](images/CURL.png) 
 
+[comment]: <> (*Figure 1: CURL encoder scheme.*)
 ### Contrastive Learning
 Contrastive learning is a form of unsupervised representation learning. It learns to distinguish between different augmentations of the same images and augmentations of other images. A schematic overview of the system can be viewed above. The way it works is as follows:
 
@@ -26,10 +27,12 @@ Second, the query and the key are encoded to latent vectors of size 50. They are
 
 ![momentum](images/momentum.PNG)
 
+[comment]: <> (*Figure ..:*)
 Third, a similarity is calculated between the query and a set of keys. The goal is to ensure that the query is most similar to it's corresponding key, called the _positive_, and to minimise the similarity with the other keys, called the _negatives_. The negatives are the keys of the other images in the current batch. The similarity measure used is bilinear similarity. The loss function used to train the system is the InfoNCE loss [[3]](#3). It can be interpreted as the log loss of a K-way softmax classifier where the label is the positive (k+), and W is a learnable parameter.
 
 ![InfoNCE](images/InfoNCE.PNG)
 
+[comment]: <> (*Figure ..:*)
 This is the basic setup of the contrastive learning CURL uses. However, it has one more ace up its sleeve. The encoder is not only updated using the contrastive loss, but also using the loss created in the connected RL agent. This enables the representations created by the encoder to be useful for the specific task the agent aims to teach itself. 
 
 CURL is designed to be able to work with any reinforcement learning algorithm. Srinivas et al. [[1]](#1) use two algorithms in their work: SAC and Rainbow DQN. This work uses just the SAC algorithm since the performance of CURL is tested on a DMC task which needs continuous input values. The way SAC works is discussed in the next section.
@@ -45,14 +48,35 @@ To reiterate, the description above is greatly oversimplifying the methods used 
 
 ## Experimental Setup
 
-### Deep Mind Control
+[comment]: <> (### Deep Mind Control)
+To reproduce the results of the CURL paper we choose to use the Cartpole swingup problem executed in the Deep Mind Control suite environment. Which is one problems used in the paper.
+Because of computation constraints on our personal laptops we changed batch size and replay buffer parameters. Since a batch size of 512 for images of size 84 by 84 required a video memory size not available to us we used a batch size of 256 for all experiments. A replay buffer of more than 50k steps was not available on one of our machines but we could experiment with both 50k and 100k steps.\
+Only a single run for each experiment is done because of time constraints. 
 
-### Training
+[comment]: <> (### Training)
 
 ## Results
-### Visualizing the encoder
-We thought it would be interesting to see what the first convolutional layer of the encoder would analyze. The observation image ![observation_image](images/example_observation.png) given to the encoder model creates these 32 featuremaps ![encoder_visualization](images/featuremaps_conv_1.png).
+We compare the CURL performance on the Cartpole problem with one of the baselines used in the paper, the SAC+AE method and according to the paper CURL should outperform SAC+AE for 100k and 500 environment step scores. However, since our personal computers did not have the video memory size that is needed for the big batch size used in CURL we can expect different results than in the paper.\
+Figure 1 shows that based on our results CURL outperforms SAC+AE after 100k environments steps, but the difference is negligible after 500k steps. Next to that when training further than 500.000 steps SAC+AE outperforms CURL, as can be seen clearly in Figure 2.\ 
+The reason that CURL is outperformed could be because CURL does not use a batch size of 512 in our experiments. Compared to the paper, our results are lower with only a score of ~300 and ~520 for 100k and 500k steps respectively while the paper shows that CURL can achieve 582 and 841.
+Our results of SAC+AE seem to be just below the performance compared to their paper. This could be explained by the smaller replay buffer of 1e5 instead of 1e6 or that we use a bigger batch size of 256.  
+![compare_sac_and_curl](images/compare_sac_and_curl.png)\
+*Figure 1: Comparison between CURL and SAC+AE where in general CURL outperforms SAC+AE.*\
+![compare_sac_and_curl_big](images/compare_sac_and_curl_big.png)\
+*Figure 2: Same comparison between CURL and SAC+AE as in previous figure but with environment steps until 1e6.*\
 
+We also compare the performance of CURL using different replay buffer sizes of 5,50 and 100k in Figure [3](#compare_replay_size), where 100k is the default used in the paper. 
+![compare_replay_size](images/CURL_replay_compare.png)\
+*Figure 3: Same comparison between CURL and SAC+AE as in previous figure but with environment steps until 1e6.*\
+
+
+### Visualizing the encoder
+The encoder converts the image input into a smaller latent space. We can visualize the featuremaps of one of the convolutional layers to see what the encoder is looking at.\
+This observation image is given to the encoder model: ![observation_image](images/example_observation.png)\
+and creates these 32 featuremaps after the first convolutional layer with Relu activation: ![encoder_visualization](images/featuremaps_conv_1.png).\
+Some things can be noticed: Featuremaps analyze different timesteps, for example 1 and 2 analyze a different timestep as can be seen from the angle of the cartpole stick. 
+Second, a lot of featuremaps are not active at all. We are not sure why this is the case, it could be that 32 featuremaps are overkill for the first convolutional layer for this environment.
+We see the same set of featuremaps activated for other observation inputs as well.
 ## Conclusion and Discussion
 
 ## References
