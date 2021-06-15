@@ -116,10 +116,10 @@ The figure visualizing the training based on training minutes shows clearly that
 
 ![freeze_encoder](images/encoder_loss.png)\
 *Figure 7: Encoder freezed at timestep 400k.*\
-![freeze_encoder](images/freezed_encoder_steps.png)\
-*Figure 8: Encoder freezed at timestep 400k.*\
-![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
-*Figure 9: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*
+![freeze_encoder](images/freezed_encoder_steps.png) ![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
+*Figure 8: Encoder freezed at timestep 400k.*       *Figure 9: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*
+
+
 ## Conclusion and Discussion
 
 
