@@ -90,7 +90,7 @@ Our results of SAC+AE seem to be just below the performance (~550 for 500k envir
 ![compare_sac_and_curl_big](images/compare_sac_and_curl_big.png)\
 *Figure 3: Same comparison between CURL and SAC+AE as in previous figure but with environment steps until 1e6.*
 
-We also compare the performance of CURL using different replay buffer sizes of 5,50 and 100k in Figure [3](#compare_replay_size), where 100k is the default used in the paper.  
+We also compare the performance of CURL using different replay buffer sizes of 5,50 and 100k in Figure [4](#compare_replay_size), where 100k is the default used in the paper.  
 ![compare_replay_size](images/CURL_replay_compare.png)\
 *Figure 4: Comparison of CURL with different replay buffer sizes.*
 
