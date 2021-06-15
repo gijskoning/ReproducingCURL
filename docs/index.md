@@ -75,14 +75,14 @@ Our results of SAC+AE seem to be just below the performance (~550 for 500k envir
 ![compare_sac_and_curl](images/compare_sac_and_curl.png)\
 *Figure 2: Comparison between CURL and SAC+AE where in general CURL outperforms SAC+AE.*\
 ![compare_sac_and_curl_big](images/compare_sac_and_curl_big.png)\
-*Figure 3: Same comparison between CURL and SAC+AE as in previous figure but with environment steps until 1e6.*\
+*Figure 3: Same comparison between CURL and SAC+AE as in previous figure but with environment steps until 1e6.*
 
-We also compare the performance of CURL using different replay buffer sizes of 5,50 and 100k in Figure [3](#compare_replay_size), where 100k is the default used in the paper.\ 
+We also compare the performance of CURL using different replay buffer sizes of 5,50 and 100k in Figure [3](#compare_replay_size), where 100k is the default used in the paper.  
 ![compare_replay_size](images/CURL_replay_compare.png)\
-*Figure 4: Comparison of CURL with different replay buffer sizes.*\
+*Figure 4: Comparison of CURL with different replay buffer sizes.*
 
 ![compare_replay_size](images/SAC-AE_replay_compare.png)\
-*Figure 5: Comparison of SAC+AE with different replay buffer sizes.*\
+*Figure 5: Comparison of SAC+AE with different replay buffer sizes.*
 
 
 ### Visualizing the encoder
@@ -100,7 +100,7 @@ todo\
 ![freeze_encoder](images/freezed_encoder_steps.png)\
 *Figure 6: Encoder freezed at timestep 400k.*\
 ![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
-*Figure 7: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*\
+*Figure 7: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*
 ## Conclusion and Discussion
 
 ## References
