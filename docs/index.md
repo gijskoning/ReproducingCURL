@@ -138,20 +138,29 @@ We also compare the performance of CURL using different replay buffer sizes of 5
 
 
 ### Visualizing the encoder
-The encoder converts the image input into a smaller latent space. We can visualize the featuremaps of one of the convolutional layers to see what the encoder is looking at.\
+The encoder converts the image input into a smaller latent space. We can visualize the featuremaps of one of the convolutional layers to see what the encoder is focussing on.\
 This observation image is given to the encoder model:\
 ![observation_image](images/example_observation.png)\
-and creates these 32 featuremaps after the first convolutional layer with Relu activation: ![encoder_visualization](images/featuremaps_conv_1.png).\
+and creates these 32 featuremaps after the first convolutional layer with Relu activation:\
+![encoder_visualization](images/featuremaps_conv_1.png).\
 Some things can be noticed: Featuremaps analyze different timesteps, for example 1 and 2 analyze a different timestep as can be seen from the angle of the cartpole stick. 
 Second, a lot of featuremaps are not active at all. We are not sure why this is the case, it could be that 32 featuremaps are overkill for the first convolutional layer for this environment.
-We see the same set of featuremaps activated for other observation inputs as well.
+For other observation inputs we see the same set of featuremaps activated as well.
 
 ### Freezing the encoder
-todo\
+We also analyzed freezing the encoder after 400k timesteps to see the increase in computational efficiency during training, since the encoder update is a big part of the whole training process.
+In Figure 7 we can see that the encoder loss when training CURL with a replay buffer of 100k. The loss is already quite low and seems to be converging around 400 to 500k timesteps of training. 
+Restarting the training at timestep 400k and freezing the encoder let to Figures 8,9. We are unsure how it is possible that the total performance improved over not freezing the encoder. We think it could be because the freezed encoder produces a more consistent output but it can also be a random coincidence.
+The figure visualizing the training based on training minutes shows clearly that excluding the encoder update speeds up the training process significantly. The last 400k training steps where 2.25 times faster to train with the freezed encoder.
+
+![freeze_encoder](images/encoder_loss.png)\
+*Figure 7: Encoder freezed at timestep 400k.*\
 ![freeze_encoder](images/freezed_encoder_steps.png)\
-*Figure 6: Encoder freezed at timestep 400k.*\
+*Figure 8: Encoder freezed at timestep 400k.*\
 ![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
-*Figure 7: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*\
+*Figure 9: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*
+
+
 
 ## Conclusion and Discussion
 
