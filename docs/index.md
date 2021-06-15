@@ -15,7 +15,7 @@ bit about results
 ## Model
 This section will briefly introduce The implementation of CURL and it's components. CURL uses a contrastive representation learner that provides meaningful representations from raw pixel data. The representations are then passed to a RL model, which is Soft Actor Critic for this work.
 
-![CURL-schematic](images/CURL.png) 
+![CURL-schematic](images/CURL.png)  
 *Figure 1: CURL encoder scheme.*
 
 ### Contrastive Learning
@@ -25,12 +25,12 @@ First, the observation is augmented twice, once as a query and once as a key. In
 
 Second, the query and the key are encoded to latent vectors of size 50. They are encoded by two different encoders, The key-encoder being a momentum updated version of the query-encoder. This means the weights of the key-encoder are updated by an exponential moving average (EMA) of the query encoder conform equation 1. The encoder itself is a simple set of 4 32-channel convolutional layers with ReLUs followed by an MLP with one hidden layer of size 1024, with layernorm and tanh non-linearity. 
 
-![momentum](images/momentum.PNG)
+![momentum](images/momentum.PNG)  
 *Equation 1: Update of the weights of the key-encoder with the EMA of the weight of the query encoder.*
 
 Third, a similarity is calculated between the query and a set of keys. The goal is to ensure that the query is most similar to it's corresponding key, called the _positive_, and to minimise the similarity with the other keys, called the _negatives_. The negatives are the keys of the other images in the current batch. The similarity measure used is bilinear similarity. The loss function used to train the system is the InfoNCE loss [[3]](#3). It can be interpreted as the log loss of a K-way softmax classifier where the label is the positive (k+), and W is a learnable parameter.
 
-![InfoNCE](images/InfoNCE.PNG)
+![InfoNCE](images/InfoNCE.PNG)  
 *Equation 2: InfoNCE loss function.*
 
 This is the basic setup of the contrastive learning CURL uses. However, it has one more ace up its sleeve. The encoder is not only updated using the contrastive loss, but also using the loss created in the connected RL agent. This enables the representations created by the encoder to be useful for the specific task the agent aims to teach itself. 
@@ -52,7 +52,7 @@ This section briefly discusses the experiments  performed experiments. It explai
 ### Deepmind Control Suite
 All models are tested in the DMC suite [[4]](#4). This is a set of continous control tasks designed to test reinforcement learning models. Srinivas et al. [[1]](#1) evaluated CURL on 16 of these tasks. Because of time restrictions, this work only uses the cartpole swingup task. In this task the agent needs to swing a pole upwards and try to balance it as good as possible. It has to do this by moving the cart to the left and to the right.
 
-[cartpole](images/cartpole.png)
+![cartpole](images/cartpole.png)  
 *Figure 2: A frame of the cartpole swingup task with the pole nicely balanced* at the top.
 
 ### Training Settings
