@@ -75,10 +75,49 @@ The results of the aforementioned experiments are viewed in this section.
 The reward function over time of the the training of all models can be viewed in figure 3. From the CURL plots it is clear that a replay buffer size of 5k is less effective than one of 50k or 100k. between 50k and 100k there is no clear difference, suggesting they are equally good. With SAC+AE the result are unexpected. A replay buffer size of 5k seems to outperform 50k. The difference between 5k and 100k is less pronounced,but seems to be in the favor of 5k. The assumption is that this is an anomaly and that the training just got lucky. However, further research is necessary to confirm whether or not this is true.
 
 ![compare_replay_size](images/CURL_replay_compare.png)
-![compare_replay_size](images/SAC-AE_replay_compare.png) 
-*Figure 3: CURL and SAC+AE training curves with batch size 256 and replay buffer sizes 5k, 50k and 100k.*
+![compare_replay_size](images/SAC-AE_replay_compare.png)  
+*Figure 3: CURL and SAC+AE training curves with batch size 256 and replay buffer sizes 5k, 50k and 100k. The plot shows the moving average over the last 20k environment steps.*
 
-When comparing CURL to SAC+AE it is clear that CURL achieves higher scores in the early stages of the training. This confirms the findings of the authors that CURL is more sample efficient because it converges earlier. However, the best SAC+AE model ends at a similar score as the best CURL model. 
+When comparing CURL to SAC+AE it is clear that CURL achieves higher scores in the early stages of the training. This confirms the findings of the authors that CURL is more sample efficient because it converges earlier. However, the best SAC+AE model ends at a similar score as the best CURL model. Therefore, there is no certainty that a longer training could have one outperforming the other in the long run. 
+
+### Batch Size Comparison
+The performances of CURL and SAC+AE with batch size 256 are also compared with the original paper, where they used a batch size of 512. Table 1 shows the results of this comparison. It is clear that a batch size of 512 performs better than 256, as is to be expected. 
+
+<table>
+<thead>
+  <tr>
+    <th>Replay Buffer Size</th>
+    <th>CURL 512</th>
+    <th>CURL 256</th>
+    <th>SAC+AE 512</th>
+    <th>SAC+AE 256</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>100k</td>
+    <td>841 ± 45</td>
+    <td>526</td>
+    <td>735 ± 63</td>
+    <td>533</td>
+  </tr>
+  <tr>
+    <td>50k</td>
+    <td>-</td>
+    <td>494</td>
+    <td>-</td>
+    <td>378</td>
+  </tr>
+  <tr>
+    <td>5k</td>
+    <td>-</td>
+    <td>430</td>
+    <td>-</td>
+    <td>545</td>
+  </tr>
+</tbody>
+</table>  
+*Table 1: Comparison of CURL and SAC+AE with batch size 256 and 512. The columns with batch size 512 contain the means and standard deviation over 10 runs. The columns with batch size 512 contain the average of the last 20k environment steps.*
 
 
 We compare the CURL performance on the Cartpole problem with one of the baselines used in the paper, the SAC+AE method and according to the paper CURL shousld outperform SAC+AE for 100k and 500 environment step scores. However, since our personal computers did not have the video memory size that is needed for the big batch size used in CURL we can expect different results than in the paper.\
@@ -112,12 +151,8 @@ todo\
 ![freeze_encoder](images/freezed_encoder_steps.png)\
 *Figure 6: Encoder freezed at timestep 400k.*\
 ![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
-<<<<<<< HEAD
 *Figure 7: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*\
 
-=======
-*Figure 7: Encoder freezed at timestep 400k with x axis visualized in training time in minutes.*
->>>>>>> 798376127d2e419f6b052aef2413d05d6fb23e6b
 ## Conclusion and Discussion
 
 
