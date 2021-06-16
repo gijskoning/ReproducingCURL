@@ -117,7 +117,7 @@ The performances of CURL and SAC+AE with batch size 256 are also compared with t
 </table>  
 *Table 1: Comparison of CURL and SAC+AE with batch size 256 and 512. The columns with batch size 512 contain the means and standard deviation over 10 runs. The columns with batch size 256 contain the average of the last 20k environment steps.*
 
-
+<!---
 We compare the CURL performance on the Cartpole problem with one of the baselines used in the paper, the SAC+AE method and according to the paper CURL shousld outperform SAC+AE for 100k and 500 environment step scores. However, since our personal computers did not have the video memory size that is needed for the big batch size used in CURL we can expect different results than in the paper.\
 Figure 2 shows that based on our results CURL outperforms SAC+AE after 100k environments steps, but the difference is negligible after 500k steps. Next to that when training further than 500.000 steps SAC+AE outperforms CURL, as can be seen clearly in Figure 2.\ 
 The reason that CURL is outperformed could be because CURL does not use a batch size of 512 in our experiments. Compared to the paper, our results are lower with only a score of ~300 and ~520 for 100k and 500k steps respectively while the paper shows that CURL can achieve 582 and 841.
@@ -126,14 +126,7 @@ Our results of SAC+AE seem to be just below the performance (~550 for 500k envir
 *Figure 2: Comparison between CURL and SAC+AE where in general CURL outperforms SAC+AE.*\
 ![compare_sac_and_curl_big](images/compare_sac_and_curl_big.png)\
 *Figure 3: Same comparison between CURL and SAC+AE as in previous figure but with environment steps until 1e6.*
-
-We also compare the performance of CURL and SAC+AE using different replay buffer sizes of 5,50 and 100k in Figures 4 and 5, where 100k is the default used in the CURL paper.  
-![compare_replay_size](images/CURL_replay_compare.png)\
-*Figure 4: Comparison of CURL with different replay buffer sizes.*
-
-![compare_replay_size](images/SAC-AE_replay_compare.png)\
-*Figure 5: Comparison of SAC+AE with different replay buffer sizes.*
-
+-->
 
 ### Visualizing the encoder
 The encoder converts the image input into a smaller latent space. We can visualize the featuremaps of one of the convolutional layers to see what the encoder is focussing on.\
