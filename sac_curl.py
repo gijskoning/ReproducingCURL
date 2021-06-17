@@ -327,7 +327,7 @@ class SacCurlAgent(object):
             mu, pi, _, _ = self.actor(latent_vector, compute_log_pi=False)
             return pi.cpu().data.numpy().flatten()
 
-    def update_critic(self, obs, action, reward, next_obs, not_done, L, step):
+    def update_critic(self, obs, action, reward, next_obs, not_done, L, step, freeze_encoder):
         with torch.no_grad():
             latent_vector = self.encoder.query(next_obs)
 
@@ -338,7 +338,7 @@ class SacCurlAgent(object):
             target_Q = reward + (not_done * self.discount * target_V)
 
         # get current Q estimates
-        latent_vector = self.encoder.query(obs)
+        latent_vector = self.encoder.query(obs, detach=freeze_encoder)
         current_Q1, current_Q2 = self.critic(latent_vector, action)
         critic_loss = F.mse_loss(current_Q1,
                                  target_Q) + F.mse_loss(current_Q2, target_Q)
