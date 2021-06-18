@@ -104,7 +104,7 @@ def read_file(name_of_file, max_step=1e20):
 
 
 def plot_average(average_reward_list, last_time_step, average_over_last_steps, x_label_additional_info="", show=True,
-                 color=None, time_in_minutes=False, alpha=1.):
+                 color=None, time_in_minutes=False, alpha=1., linestyle=None):
     steps = len(average_reward_list)
     time_steps = (last_time_step / steps) * np.arange(steps)
     print("Final reward: ", average_reward_list[-1])
@@ -115,7 +115,7 @@ def plot_average(average_reward_list, last_time_step, average_over_last_steps, x
         # plt.xlabel(f"rewards averaged over last {average_over_last_steps} steps" + x_label_additional_info)
         plt.xlabel(f"Environment steps" + x_label_additional_info)
     plt.ylabel("mean rewards")
-    plot, = plt.plot(time_steps, average_reward_list, color, alpha=alpha)
+    plot, = plt.plot(time_steps, average_reward_list, color, alpha=alpha, linestyle=linestyle)
     if show:
         plt.show()
     return plot
@@ -123,7 +123,7 @@ def plot_average(average_reward_list, last_time_step, average_over_last_steps, x
 
 def plot_data(name_of_file=None, calculate_average_each_step=20000, average_over_last_steps=200000,
               scale_reward=1, only_average=True, color="", max_step=None, x_axis_duration=False, alpha=1.,
-              action_repeat=8):
+              action_repeat=8, linestyle=None):
     if max_step is not None:
         max_step /= action_repeat
     time_steps, rewards, time_stamps, time_elapsed = read_file(name_of_file, max_step)
@@ -146,7 +146,7 @@ def plot_data(name_of_file=None, calculate_average_each_step=20000, average_over
                                                      average_over_last_steps, scale_reward)
 
     plot = plot_average(average_reward_list, x_axis[-1], average_over_last_steps, show=False, color=color,
-                        time_in_minutes=time_in_minutes, alpha=alpha)
+                        time_in_minutes=time_in_minutes, alpha=alpha, linestyle=linestyle)
     return time_elapsed, plot
 
 
@@ -191,7 +191,7 @@ def plot_runs(outputs, calculate_average_each_step=20000, average_over_last_step
 #         step = line_data['step']
 
 if __name__ == "__main__":
-    # read_file("encoder_freeze_100k/train.log")
+    # read_file("encoder_freeze_100k/train_walker_05-29-2021-01-26-17.log")
     plot_data("encoder_freeze_100k/train_fixed.log", average_over_last_steps=1000, calculate_average_each_step=2000,
               alpha=0.1)
     plt.show()
