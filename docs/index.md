@@ -6,13 +6,13 @@
 
 Deep learning is an amazing new field in the world of computer science. New techniques are developed daily and there is currently no end in sight. A problem encountered by many students in this field is the insane amount of computing power that is necessary for some models. For student that want to study the field this can be a big hurdle. 
 
-CURL (Contrastive Unsupervised representations for Reinforcement Learning) [[1]](#1) is a model that performs representation learning for reinforcement learning (RL) agents. It can learn to do complex tasks from raw pixel data.  It promised to be more sample efficient than currently available models. This work aims to recreate the performance of the already efficient CURL model with lower compute settings, like reduced batch size and replay buffer size. This frees up a lot of memory which allows it to be run on machines that would be available for a student. 
+Reinforcement learing (RL) is a subfield of machine learning that trains agents. Agents perceive an environment and use those observations to decide what action to perform on the environment. They decide what action to use based on a reward they receive from the environment upon performing the action. The agent aims to maximize this reward over time. With Deep RL algorithms the internals of the agents are based on deep neural networks. 
+
+RL agents are a crucial part of autonomous robotics for learning to perform tasks like grabbing objects or not hitting walls when moving. Ideally the agent would have perfect information of its environment, but often this is not the case. The information an agent gets is dependent on the sensors it has to perceive it. Many RL models struggle when learning from raw pixel data for instance, Therefore, it is of utmost importance that an RL agent learns good representations of this visual data such that it can learn task more effieciently. 
+
+CURL (Contrastive Unsupervised representations for Reinforcement Learning) [[1]](#1) is a model that performs representation learning for reinforcement learning agents. It can learn to do complex tasks from raw pixel data.  It promised to be more sample efficient than currently available models. This work aims to recreate the performance of the already efficient CURL model with lower compute settings, like reduced batch size and replay buffer size. This releases a lot of memory which allows it to be run on machines that would be available for a student. 
 
 This work reimplements CURL and uses it to reproduce the sample efficient results of the original paper, but on lower settings. The aim is to see whether CURL stays more sample efficient, even on those lower settings. To do that it is compared to another unsupervised pixel-based RL model: SAC+AE. 
-
-
-
-They are run on the same settings to level the playing field and provide a fair comparison.
 
 ## Model
 This section will briefly introduce the implementation of CURL and it's components. CURL uses a contrastive representation learner that provides meaningful representations from raw pixel data. The representations are then passed to a RL model, which is Soft Actor Critic [[2]](#2) for this work.
@@ -41,8 +41,6 @@ CURL is designed to be able to work with any reinforcement learning algorithm. S
 
 ### Soft Actor Critic
 SAC [[2]](#2) is a model-free deep reinforcement learning algorithm. The aim of this algorithm to improve the sample efficiency and stability compared with other state-of-the-art RL frameworks. The full explanation of the workings of SAC is outside of the scope of this work, but it does aim to provide some intuition on how it works for the uninitiated. 
-
-RL algorithms are agents. They perceive an environment and use those observations to decide what action to perform on the environment. They decide what action to use based on a reward they receive from the environment upon performing the action. The agent aims to maximize this reward over time. With Deep RL algorithms the internals of the agents are based on deep neural networks. 
 
 SAC builds on previous actor critic methods and has two main components: the _actor_ and the _critic_. The actor learns to sample actions from the _policy_ and the critic learns to improve the policy based on the reward of the action and the current state of the environment. The policy is a function that determines the strategy of the agent. Together the actor and the critic aim to maximize the effectiveness of the policy to generate rewards by using a method called maximum entropy reinforcement learning. In CURL the gradient of the critic network is used to update the encoder during training. 
 
@@ -85,7 +83,7 @@ To check this, some of the runs were trained for a longer time. The result of th
 *Figure 4: Training curves for 800k-1M environment steps.*
 
 ### Batch Size Comparison
-The performances of CURL and SAC+AE with batch size 256 are also compared with the original paper, where they used a batch size of 512. Table 1 shows the results of this comparison. It is clear that a batch size of 512 performs better than 256, as is to be expected. 
+The performances of CURL and SAC+AE with batch size 256 are also compared with the original paper, where they used a batch size of 512. Table 1 shows the results of this comparison. The values in the table are averages over the last 20k environment steps after 500k steps (the average over 480k-500k). It is clear that a batch size of 512 performs better than 256, as is to be expected. 
 
 <table>
 <thead>
@@ -121,9 +119,12 @@ The performances of CURL and SAC+AE with batch size 256 are also compared with t
   </tr>
 </tbody>
 </table>  
-*Table 1: Comparison of CURL and SAC+AE with batch size 256 and 512. The columns with batch size 512 contain the means and standard deviation over 10 runs. The columns with batch size 256 contain the average of the last 20k environment steps.*
+*Table 1: Comparison of CURL and SAC+AE with batch size 256 and 512. The columns with batch size 512 contain the means and standard deviation over 10 runs. The columns with batch size 256 contain the average of the last 20k environment steps. *
+
+The big outlier in table 1 is the result for SAC+AE with a replay buffer size of 5k. More runs should be done with these settings to test whether this is indeed an outlier or if it is actually performing better than 100k or 50k. 
 
 ### Visualizing the encoder
+
 The encoder converts the image input into a smaller latent space. We can visualize the featuremaps of one of the convolutional layers to see what the encoder is focussing on.\
 A observation is given to the encoder model, the stack of its three images is visualized below and creates these 32 featuremaps after the first convolutional layer with Relu activation:\
 ![observation_image](images/example_observation_2.png) ![encoder_visualization](images/featuremaps_conv_1_plot_3.png)\
