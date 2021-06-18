@@ -21,14 +21,17 @@ This section will briefly introduce the implementation of CURL and it's componen
 *Figure 1: CURL encoder scheme.*
 
 ### Contrastive Learning
-Contrastive learning is a form of unsupervised representation learning. It learns to distinguish between different augmentations of the same images and augmentations of other images. A schematic overview of the system can be viewed above. 
+Contrastive learning is a form of unsupervised representation learning. It learns to distinguish between different augmentations of the same images and augmentations of other images. A schematic overview of the system can be viewed in figure 1. 
 
 First, the observation is augmented twice, once as a query and once as a key. In this case augmentation means taking a random crop of 84 by 84 pixels (the original size is 100 by 100 pixels). Other contrastive learning schemes can use differnt augmentations as well, like rotations. CURL does not do this since a clear sense of up and down is often necessary for an RL task. Most contrastive learning algorithms use just one image as an input, but since CURL is designed for reinforcement learning it benefits from having temporal information as well. Therefore, a stack of three images is used which are simply stacked together in the same dimension as the RGB channels. Thus, creating a stack of size 9x100x100. The whole stack is cropped in the same way during augmentation. 
 
-Second, the query and the key are encoded to latent vectors of size 50. The authors give no reason for coosing this size. the Query and key are encoded using the query- and key-encoder respectively. The key-encoder is a momentum updated version of the query-encoder. This means the weights of the key-encoder are updated by an exponential moving average (EMA) of the query encoder conform equation 1. The encoder itself is a simple set of 4 32-channel convolutional layers with ReLUs followed by an MLP with one hidden layer of size 1024, with layernorm and tanh non-linearity. 
+Second, the query and the key are encoded to latent vectors of size 50. The authors give no reason for coosing this size. the Query and key are encoded using the query- and key-encoder respectively. The key-encoder is a momentum updated version of the query-encoder. This means the weights of the key-encoder are updated by an exponential moving average (EMA) of the query encoder conform equation 1. The encoder itself is a simple set of 4 32-channel convolutional layers with ReLUs followed by an MLP with one hidden layer of size 1024, with layernorm and tanh non-linearity. A schematic overview can be found in figure 2
 
 ![momentum](images/momentum.PNG)\
 *Equation 1: Update of the weights of the key-encoder with the EMA of the weight of the query encoder.*
+
+![architecture](images/encoder_architecture.png)\
+*Figure 2: The encoder architecture of CURL.*
 
 Third, a similarity is calculated between the query and a set of keys. The goal is to ensure that the query is most similar to it's corresponding key, called the _positive_, and to minimise the similarity with the other keys, called the _negatives_. The negatives are the keys of the other images in the current batch. The similarity measure used is bilinear similarity. Bilinear similarity can learn which parts of the representation are more (or less) important for the algorithm, making it more meaningful than a simple dot product. The loss function used to train the system is the InfoNCE loss [[3]](#3). It can be interpreted as the log loss of a K-way softmax classifier where the label is the positive (k+), and W is a learnable parameter for bilinear similarity.
 
@@ -53,7 +56,7 @@ This section introduces the experiments that are performed. It explains the fram
 All models are tested in the DMC suite [[4]](#4). This is a set of continous control tasks designed to test reinforcement learning models. Srinivas et al. [[1]](#1) evaluated CURL on 16 of these tasks. Because of time restrictions, this work only uses the cartpole swingup task. In this task the agent needs to swing a pole upwards and try to balance it as good as possible. It has to do this by moving the cart to the left and to the right.
 
 ![cartpole](images/cartpole.png)\
-*Figure 2: A frame of the cartpole swingup task with the pole nicely balanced* at the top.
+*Figure 3: A frame of the cartpole swingup task with the pole nicely balanced* at the top.
 
 ### Training Settings
 The replicated CURL model is evaluated with various setting. The original paper on CURL used a batch size of 512. This used too much video memory to be able to be run on the machines used for this work. Therefore a batch size of 256 was chosen. Another setting that needed to be toned down (for one of the machines at least) is the replay buffer size. The original paper used a replay buffer of 100k images, but we tested 50k and 5k as well. All other settings were set to the default values also used by Srinivas et al. [[1]](#1). 
@@ -69,18 +72,18 @@ The results of the aforementioned experiments are viewed in this section.
 
 ### CURL vs SAC+AE 
 
-The reward function over time of the the training of all models can be viewed in figure 3. From the CURL plots it is clear that a replay buffer size of 5k is less effective than one of 50k or 100k. Between 50k and 100k there is no clear difference, suggesting they are equally good. With SAC+AE the result are unexpected. A replay buffer size of 5k seems to outperform 50k. The difference between 5k and 100k is less pronounced, but seems to be in the favour of 5k. The assumption is that this is an anomaly and that the training just got lucky. Repeating runs multiple times can provide a statistical basis to  show whether or not this is true.
+The reward function over time of the the training of all models can be viewed in figure 4. From the CURL plots it is clear that a replay buffer size of 5k is less effective than one of 50k or 100k. Between 50k and 100k there is no clear difference, suggesting they are equally good. With SAC+AE the result are unexpected. A replay buffer size of 5k seems to outperform 50k. The difference between 5k and 100k is less pronounced, but seems to be in the favour of 5k. The assumption is that this is an anomaly and that the training just got lucky. Repeating runs multiple times can provide a statistical basis to  show whether or not this is true.
 
 ![compare_replay_size](images/CURL_and_Sac_compare.png)
 ![compare_replay_size](images/CURL_replay_compare.png)
 ![compare_replay_size](images/SAC-AE_replay_compare.png)\
-*Figure 3: CURL and SAC+AE training curves with batch size 256 and replay buffer sizes 5k, 50k and 100k. The plots show the moving average over the last 20k environment steps. The right plot is a combination of the middle and left plots*
+*Figure 4: CURL and SAC+AE training curves with batch size 256 and replay buffer sizes 5k, 50k and 100k. The plots show the moving average over the last 20k environment steps. The right plot is a combination of the middle and left plots*
 
 When comparing CURL to SAC+AE it is clear that CURL achieves higher scores in the early stages of the training. This confirms the findings of the authors that CURL is more sample efficient because it converges earlier. However, the best SAC+AE model ends at a similar score as the best CURL model. However, it looks like SAC+AE is not nearing convergence. This could imply that training longer may prove fruitful for SAC+AE.
 
-To check this, some of the runs were trained for a longer time. The result of this can be found in figure 4. Not only did the SAC+AE not converge, it seems to have a spike in the reward just after the 500k environment steps. This increase in reward is visible in the results of Yarats et al. as well, but only for this specific task (cartpole swingup). It is unclear where this sudden spike originates from. 
+To check this, some of the runs were trained for a longer time. The result of this can be found in figure 5. Not only did the SAC+AE not converge, it seems to have a spike in the reward just after the 500k environment steps. This increase in reward is visible in the results of Yarats et al. as well, but only for this specific task (cartpole swingup). It is unclear where this sudden spike originates from. 
 ![compare_replay_size](images/compare_sac_and_curl_big.png)\
-*Figure 4: Training curves for 800k-1M environment steps.*
+*Figure 5: Training curves for 800k-1M environment steps.*
 
 ### Batch Size Comparison
 The performances of CURL and SAC+AE with batch size 256 are also compared with the original paper, where they used a batch size of 512. Table 1 shows the results of this comparison. The values in the table are averages over the last 20k environment steps after 500k steps (the average over 480k-500k). It is clear that a batch size of 512 performs better than 256, as is to be expected. 
@@ -135,13 +138,14 @@ The other observations of the same environment and  observations with featuremap
 
 ### Freezing the encoder
 We also analyzed freezing the encoder after 400k timesteps to see the increase in computational efficiency during training, since the encoder update is a big part of the whole training process.
-In Figure 7 we can see that the encoder loss when training CURL with a replay buffer of 100k. The loss is already quite low and seems to be converging around 400 to 500k timesteps of training. 
-Restarting the training at timestep 400k and freezing the encoder let to Figure 8. We are unsure how it is possible that the total performance improved over not freezing the encoder. We think it could be because the freezed encoder produces a more consistent output but it can also be a random coincidence.
+In Figure 6 we can see that the encoder loss when training CURL with a replay buffer of 100k. The loss is already quite low and seems to be converging around 400 to 500k timesteps of training. 
+Restarting the training at timestep 400k and freezing the encoder let to Figure 7. We are unsure how it is possible that the total performance improved over not freezing the encoder. We think it could be because the freezed encoder produces a more consistent output but it can also be a random coincidence.
 The figure visualizing the training based on training minutes shows clearly that excluding the encoder update speeds up the training process significantly. The last 400k training steps where 2.25 times faster to train with the freezed encoder.\
 ![freeze_encoder](images/encoder_loss.png)\
-*Figure 7: Contrastive loss of the encoder during training of CURL with 100k replay buffer*\
+*Figure 6: Contrastive loss of the encoder during training of CURL with 100k replay buffer*\
 ![freeze_encoder](images/freezed_encoder_steps.png) ![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
-*Figure 8: (left) Encoder frozen at timestep 400k. (right) Encoder frozen at timestep 400k with x axis visualized in training time in minutes.*
+*Figure 7: (left) Encoder frozen at timestep 400k. (right) Encoder frozen at timestep 400k with x axis visualized in training time in minutes.*
+
 ## Conclusion
 We experimented with the CURL and baseline algorithm SAC+AE and compared the performances on the DCS Cartpole environment. The full batch size of 512 could not be used but we could show the difference with the lower batch size of 256.\
 CURL and the SAC+AE actually produced very similar results for the first 500k timesteps. The reason that the paper performs better than that we showed can be explained by the difference in batch size.\
