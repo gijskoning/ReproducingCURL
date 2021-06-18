@@ -66,12 +66,6 @@ The final experiment is about freezing the encoder at a point where it seems to 
 ### Comparison 
 Other than testing the performance of CURL with various replay buffer sizes, it is also compared to another state-of-the-art RL model named SAC+AE (Soft Actor Critic + AutoEncoder) [[5]](#5). It uses the same SAC algorithm as CURL, but instead of using a contrastive model for representation learning, it uses an autoencoder scheme. This autoencoder has a latent space of the same size as the contrastive learning model in CURL and it is trained by reconstructing the input from the latent space using a simple reconstructive loss (MSE). The encoder of SAC+AE has the same architecture as the encoder of CURL and the decoder is the same, but in reverse order. Therefore, both models have (roughly) the same amount of parameters. SAC+AE is tested with the same batch size and replay buffers as CURL. Combined with the similar amount of parameters this should be a fair comparison. 
 
-<!---
-To reproduce the results of the CURL paper we choose to use the Cartpole swingup problem executed in the Deep Mind Control suite environment. Which is one problems used in the paper.
-Because of computation constraints on our personal laptops we changed batch size and replay buffer parameters. Since a batch size of 512 for images of size 84 by 84 required a video memory size not available to us we used a batch size of 256 for all experiments. A replay buffer of more than 50k steps was not available on one of our machines but we could experiment with both 50k and 100k steps.\
-Only a single run for each experiment is done because of time constraints.
--->
-
 ## Results
 The results of the aforementioned experiments are viewed in this section. 
 
@@ -84,11 +78,12 @@ The reward function over time of the the training of all models can be viewed in
 ![compare_replay_size](images/SAC-AE_replay_compare.png)\
 *Figure 3: CURL and SAC+AE training curves with batch size 256 and replay buffer sizes 5k, 50k and 100k. The plots show the moving average over the last 20k environment steps. The right plot is a combination of the middle and left plots*
 
-When comparing CURL to SAC+AE it is clear that CURL achieves higher scores in the early stages of the training. This confirms the findings of the authors that CURL is more sample efficient because it converges earlier. However, the best SAC+AE model ends at a similar score as the best CURL model. It even looks like SAC+AE has not looks like it has. This could imply that training longer may prove fruitful for SAC+AE.
+When comparing CURL to SAC+AE it is clear that CURL achieves higher scores in the early stages of the training. This confirms the findings of the authors that CURL is more sample efficient because it converges earlier. However, the best SAC+AE model ends at a similar score as the best CURL model. However, it looks like SAC+AE is not nearing convergence. This could imply that training longer may prove fruitful for SAC+AE.
 
-To check this, some of the runs were trained for a longer time. The result of this can be found in figure 4. 
+To check this, some of the runs were trained for a longer time. The result of this can be found in figure 4. Not only did the SAC+AE not converge, it seems to have a spike in the reward just after the 500k environment steps. This increase in reward is visible in the results of Yarats et al. as well, but only for this specific task (cartpole swingup). It is unclear where this sudden spike originates from. 
 ![compare_replay_size](images/compare_sac_and_curl_big.png)\
 *Figure 4: Training curves for 800k-1M environment steps.*
+
 ### Batch Size Comparison
 The performances of CURL and SAC+AE with batch size 256 are also compared with the original paper, where they used a batch size of 512. Table 1 shows the results of this comparison. It is clear that a batch size of 512 performs better than 256, as is to be expected. 
 
@@ -96,7 +91,7 @@ The performances of CURL and SAC+AE with batch size 256 are also compared with t
 <thead>
   <tr>
     <th>Replay Buffer Size</th>
-    <th>CURL 512</th>
+    <th>CURL 512</th> 
     <th>CURL 256</th>
     <th>SAC+AE 512</th>
     <th>SAC+AE 256</th>
@@ -128,17 +123,6 @@ The performances of CURL and SAC+AE with batch size 256 are also compared with t
 </table>  
 *Table 1: Comparison of CURL and SAC+AE with batch size 256 and 512. The columns with batch size 512 contain the means and standard deviation over 10 runs. The columns with batch size 256 contain the average of the last 20k environment steps.*
 
-<!---
-We compare the CURL performance on the Cartpole problem with one of the baselines used in the paper, the SAC+AE method and according to the paper CURL shousld outperform SAC+AE for 100k and 500 environment step scores. However, since our personal computers did not have the video memory size that is needed for the big batch size used in CURL we can expect different results than in the paper.\
-Figure 2 shows that based on our results CURL outperforms SAC+AE after 100k environments steps, but the difference is negligible after 500k steps. Next to that when training further than 500.000 steps SAC+AE outperforms CURL, as can be seen clearly in Figure 2.\ 
-The reason that CURL is outperformed could be because CURL does not use a batch size of 512 in our experiments. Compared to the paper, our results are lower with only a score of ~300 and ~520 for 100k and 500k steps respectively while the paper shows that CURL can achieve 582 and 841.
-Our results of SAC+AE seem to be just below the performance (~550 for 500k environment steps) compared to their paper (~750 reward after 500k environment steps). This could be explained by the smaller replay buffer of 1e5 instead of 1e6 or that we use a bigger batch size of 256.  
-![compare_sac_and_curl](images/compare_sac_and_curl.png)\
-*Figure 2: Comparison between CURL and SAC+AE where in general CURL outperforms SAC+AE.*\
-![compare_sac_and_curl_big](images/compare_sac_and_curl_big.png)\
-*Figure 3: Same comparison between CURL and SAC+AE as in previous figure but with environment steps until 1e6.*
--->
-
 ### Visualizing the encoder
 The encoder converts the image input into a smaller latent space. We can visualize the featuremaps of one of the convolutional layers to see what the encoder is focussing on.\
 A observation is given to the encoder model, the stack of its three images is visualized below and creates these 32 featuremaps after the first convolutional layer with Relu activation:\
@@ -162,8 +146,6 @@ We experimented with the CURL and baseline algorithm SAC+AE and compared the per
 CURL and the SAC+AE actually produced very similar results for the first 500k timesteps. The reason that the paper performs better than that we showed can be explained by the difference in batch size.\
 Next to the testing the sample efficiency we compared the algorithms with different replay buffer sizes and showed that CURL performs better with a bigger replay buffer.\
 At last we analyzed the encoder by visualizing the featuremaps and found that freezing the encoder when the contrastive loss is low improved the training time and maintain the same performance.
-
-
 
 ## References
 <a id="1">[1]</a> 
