@@ -4,60 +4,67 @@
 
 ## Introduction
 
-Deep learning is an amazing new tool in the world of computer science. New techniques are developed daily and there is currently no end in sight. One problem encountered by many students in this field is the insane amount of computing power that is necessary for some models. For student that want to study the field this can be a big hurdle. 
+Deep learning is an amazing new field in the world of computer science. New techniques are developed daily and there is currently no end in sight. A problem encountered by many students in this field is the insane amount of computing power that is necessary for some models. For student that want to study the field this can be a big hurdle. 
 
 CURL (Contrastive Unsupervised representations for Reinforcement Learning) [[1]](#1) is a model that performs representation learning for reinforcement learning (RL) agents. It can learn to do complex tasks from raw pixel data.  It promised to be more sample efficient than currently available models. This work aims to recreate the performance of the already efficient CURL model with lower compute settings, like reduced batch size and replay buffer size. This frees up a lot of memory which allows it to be run on machines that would be available for a student. 
 
-This work replicates CURL and  compares with another unsupervised pixel-based RL model: SAC+AE. They are run on the same settings to level the playing field and provide a fair comparison.
+This work reimplements CURL and uses it to reproduce the sample efficient results of the original paper, but on lower settings. The aim is to see whether CURL stays more sample efficient, even on those lower settings. To do that it is compared to another unsupervised pixel-based RL model: SAC+AE. 
+
+
+
+They are run on the same settings to level the playing field and provide a fair comparison.
 
 ## Model
-This section will briefly introduce The implementation of CURL and it's components. CURL uses a contrastive representation learner that provides meaningful representations from raw pixel data. The representations are then passed to a RL model, which is Soft Actor Critic for this work.
+This section will briefly introduce the implementation of CURL and it's components. CURL uses a contrastive representation learner that provides meaningful representations from raw pixel data. The representations are then passed to a RL model, which is Soft Actor Critic [[2]](#2) for this work.
 
 ![CURL-schematic](images/CURL.png)  
 *Figure 1: CURL encoder scheme.*
 
 ### Contrastive Learning
-Contrastive learning is a form of unsupervised representation learning. It learns to distinguish between different augmentations of the same images and augmentations of other images. A schematic overview of the system can be viewed above. The way it works is as follows:
+Contrastive learning is a form of unsupervised representation learning. It learns to distinguish between different augmentations of the same images and augmentations of other images. A schematic overview of the system can be viewed above. 
 
-First, the observation is augmented twice, once as a query and once as a key. In this case augmentation means taking a random crop of 84 by 84 pixels (the original size is 100 by 100 pixels). Most contrastive learning algorithms use just one image as an input, but since CURL is designed for reinforcement learning it benefits from having temporal information as well. Therefore, a stack of three images is used which are simply stacked together in the same dimension as the RGB channels. Thus, creating a stack of size 9x100x100. The whole stack is cropped in the same way during augmentation. 
+First, the observation is augmented twice, once as a query and once as a key. In this case augmentation means taking a random crop of 84 by 84 pixels (the original size is 100 by 100 pixels). Other contrastive learning schemes can use differnt augmentations as well, like rotations. CURL does not do this since a clear sense of up and down is often necessary for an RL task. Most contrastive learning algorithms use just one image as an input, but since CURL is designed for reinforcement learning it benefits from having temporal information as well. Therefore, a stack of three images is used which are simply stacked together in the same dimension as the RGB channels. Thus, creating a stack of size 9x100x100. The whole stack is cropped in the same way during augmentation. 
 
-Second, the query and the key are encoded to latent vectors of size 50. They are encoded by two different encoders, The key-encoder being a momentum updated version of the query-encoder. This means the weights of the key-encoder are updated by an exponential moving average (EMA) of the query encoder conform equation 1. The encoder itself is a simple set of 4 32-channel convolutional layers with ReLUs followed by an MLP with one hidden layer of size 1024, with layernorm and tanh non-linearity. 
+Second, the query and the key are encoded to latent vectors of size 50. The authors give no reason for coosing this size. the Query and key are encoded using the query- and key-encoder respectively. The key-encoder is a momentum updated version of the query-encoder. This means the weights of the key-encoder are updated by an exponential moving average (EMA) of the query encoder conform equation 1. The encoder itself is a simple set of 4 32-channel convolutional layers with ReLUs followed by an MLP with one hidden layer of size 1024, with layernorm and tanh non-linearity. 
 
-![momentum](images/momentum.PNG)  
+![momentum](images/momentum.PNG)\
 *Equation 1: Update of the weights of the key-encoder with the EMA of the weight of the query encoder.*
 
-Third, a similarity is calculated between the query and a set of keys. The goal is to ensure that the query is most similar to it's corresponding key, called the _positive_, and to minimise the similarity with the other keys, called the _negatives_. The negatives are the keys of the other images in the current batch. The similarity measure used is bilinear similarity. The loss function used to train the system is the InfoNCE loss [[3]](#3). It can be interpreted as the log loss of a K-way softmax classifier where the label is the positive (k+), and W is a learnable parameter.
+Third, a similarity is calculated between the query and a set of keys. The goal is to ensure that the query is most similar to it's corresponding key, called the _positive_, and to minimise the similarity with the other keys, called the _negatives_. The negatives are the keys of the other images in the current batch. The similarity measure used is bilinear similarity. Bilinear similarity can learn which parts of the representation are more (or less) important for the algorithm, making it more meaningful than a simple dot product. The loss function used to train the system is the InfoNCE loss [[3]](#3). It can be interpreted as the log loss of a K-way softmax classifier where the label is the positive (k+), and W is a learnable parameter for bilinear similarity.
 
 ![InfoNCE](images/InfoNCE.PNG)  
 *Equation 2: InfoNCE loss function.*
 
 This is the basic setup of the contrastive learning CURL uses. However, it has one more ace up its sleeve. The encoder is not only updated using the contrastive loss, but also using the loss created in the connected RL agent. This enables the representations created by the encoder to be useful for the specific task the agent aims to teach itself. 
 
-CURL is designed to be able to work with any reinforcement learning algorithm. Srinivas et al. [[1]](#1) use two algorithms in their work: SAC and Rainbow DQN. This work uses just the SAC algorithm since the performance of CURL is tested on a DMC task which needs continuous input values. The way SAC works is discussed in the next section.
+CURL is designed to be able to work with any reinforcement learning algorithm. Srinivas et al. [[1]](#1) use two algorithms in their work: SAC and Rainbow DQN. This work uses just the SAC algorithm since the performance of CURL is tested on a DMC task which needs continuous input values which SAC is designed for.
 
 ### Soft Actor Critic
 SAC [[2]](#2) is a model-free deep reinforcement learning algorithm. The aim of this algorithm to improve the sample efficiency and stability compared with other state-of-the-art RL frameworks. The full explanation of the workings of SAC is outside of the scope of this work, but it does aim to provide some intuition on how it works for the uninitiated. 
 
 RL algorithms are agents. They perceive an environment and use those observations to decide what action to perform on the environment. They decide what action to use based on a reward they receive from the environment upon performing the action. The agent aims to maximize this reward over time. With Deep RL algorithms the internals of the agents are based on deep neural networks. 
 
-SAC builds on previous actor critic methods and has two main components: The _actor_ and the _critic_. The actor learns to sample actions from the _policy_ and the critic learns to improve the policy based on the reward of the action and the current state of the environment. The policy is a function that determines the strategy of the agent. Together the actor and the critic aim to maximize the effectiveness of the policy to generate rewards by using a method called maximum entropy reinforcement learning. In CURL the gradient of the critic network is used to update the encoder during training. 
+SAC builds on previous actor critic methods and has two main components: the _actor_ and the _critic_. The actor learns to sample actions from the _policy_ and the critic learns to improve the policy based on the reward of the action and the current state of the environment. The policy is a function that determines the strategy of the agent. Together the actor and the critic aim to maximize the effectiveness of the policy to generate rewards by using a method called maximum entropy reinforcement learning. In CURL the gradient of the critic network is used to update the encoder during training. 
 
 To reiterate, the description above is greatly oversimplifying the methods used in SAC. An in depth description can be found in the original paper by Haarnoja et al. [[2]](#2)
 
 ## Experimental Setup
-This section briefly discusses the experiments  performed experiments. It explains the framework on which the algorithm is evaluated, which settings are tested and to which other model CURL is compared. 
+This section introduces the experiments that are performed. It explains the framework on which the algorithm is evaluated, which settings are tested and to which other model CURL is compared. 
 
 ### Deepmind Control Suite
 All models are tested in the DMC suite [[4]](#4). This is a set of continous control tasks designed to test reinforcement learning models. Srinivas et al. [[1]](#1) evaluated CURL on 16 of these tasks. Because of time restrictions, this work only uses the cartpole swingup task. In this task the agent needs to swing a pole upwards and try to balance it as good as possible. It has to do this by moving the cart to the left and to the right.
 
-![cartpole](images/cartpole.png)  
+![cartpole](images/cartpole.png)\
 *Figure 2: A frame of the cartpole swingup task with the pole nicely balanced* at the top.
 
 ### Training Settings
-The replicated CURL model is evaluated with various setting. The original paper on CURL used a batch size of 512. This used too much video memory to be able to be run on the machines used for this work. Therefore a batch size of 256 was chosen. Another setting that needed to be toned down (for one of the machines at least) is the replay buffer size. The original paper used a replay buffer of 100k images, but we tested 50k and 5k as well. All other settings were set to the default values also used by Srinivas et al. [[1]](#1). Only a single run of 500k environment steps for each experiment is done because of time constraints.
+The replicated CURL model is evaluated with various setting. The original paper on CURL used a batch size of 512. This used too much video memory to be able to be run on the machines used for this work. Therefore a batch size of 256 was chosen. Another setting that needed to be toned down (for one of the machines at least) is the replay buffer size. The original paper used a replay buffer of 100k images, but we tested 50k and 5k as well. All other settings were set to the default values also used by Srinivas et al. [[1]](#1). 
+As a base rule, only a single run of 500k environment steps for each experiment is done because of time constraints, but some are run longer to check whether the training would improve later on.
+
+The final experiment is about freezing the encoder at a point where it seems to have converged. Freeing the encoder means that it is not trained any further. However, the RL model is trained further to evaluate the impact of freezing the encoder.
 
 ### Comparison 
-Other than testing the performance of CURL with various replay buffer sizes, it is also compared to another state-of-the-art RL model named SAC+AE (Soft Actor Critic + AutoEncoder) [[5]](#5). It uses the same SAC algorithm as CURL, but instead of using a contrastive model for representation learning, it uses an autoencoder scheme. SAC+AE is tested with the same settings as CURL to provide a fair comparison. 
+Other than testing the performance of CURL with various replay buffer sizes, it is also compared to another state-of-the-art RL model named SAC+AE (Soft Actor Critic + AutoEncoder) [[5]](#5). It uses the same SAC algorithm as CURL, but instead of using a contrastive model for representation learning, it uses an autoencoder scheme. This autoencoder has a latent space of the same size as the contrastive learning model in CURL and it is trained by reconstructing the input from the latent space using a simple reconstructive loss (MSE). The encoder of SAC+AE has the same architecture as the encoder of CURL and the decoder is the same, but in reverse order. Therefore, both models have (roughly) the same amount of parameters. SAC+AE is tested with the same batch size and replay buffers as CURL. Combined with the similar amount of parameters this should be a fair comparison. 
 
 <!---
 To reproduce the results of the CURL paper we choose to use the Cartpole swingup problem executed in the Deep Mind Control suite environment. Which is one problems used in the paper.
@@ -70,15 +77,18 @@ The results of the aforementioned experiments are viewed in this section.
 
 ### CURL vs SAC+AE 
 
-The reward function over time of the the training of all models can be viewed in figure 3. From the CURL plots it is clear that a replay buffer size of 5k is less effective than one of 50k or 100k. between 50k and 100k there is no clear difference, suggesting they are equally good. With SAC+AE the result are unexpected. A replay buffer size of 5k seems to outperform 50k. The difference between 5k and 100k is less pronounced,but seems to be in the favor of 5k. The assumption is that this is an anomaly and that the training just got lucky. However, further research is necessary to confirm whether or not this is true.
+The reward function over time of the the training of all models can be viewed in figure 3. From the CURL plots it is clear that a replay buffer size of 5k is less effective than one of 50k or 100k. Between 50k and 100k there is no clear difference, suggesting they are equally good. With SAC+AE the result are unexpected. A replay buffer size of 5k seems to outperform 50k. The difference between 5k and 100k is less pronounced, but seems to be in the favour of 5k. The assumption is that this is an anomaly and that the training just got lucky. Repeating runs multiple times can provide a statistical basis to  show whether or not this is true.
 
-![compare_replay_size](images/CURL_and_Sac_compare.png)\
-*Figure 3: CURL and SAC+AE training curves with batch size 256 and replay buffer sizes 5k, 50k and 100k. The plot shows the moving average over the last 20k environment steps.*
+![compare_replay_size](images/CURL_and_Sac_compare.png)
+![compare_replay_size](images/CURL_replay_compare.png)
+![compare_replay_size](images/SAC-AE_replay_compare.png)\
+*Figure 3: CURL and SAC+AE training curves with batch size 256 and replay buffer sizes 5k, 50k and 100k. The plots show the moving average over the last 20k environment steps. The right plot is a combination of the middle and left plots*
 
-When comparing CURL to SAC+AE it is clear that CURL achieves higher scores in the early stages of the training. This confirms the findings of the authors that CURL is more sample efficient because it converges earlier. However, the best SAC+AE model ends at a similar score as the best CURL model. Therefore, there is no certainty that a longer training could have one outperforming the other in the long run. 
+When comparing CURL to SAC+AE it is clear that CURL achieves higher scores in the early stages of the training. This confirms the findings of the authors that CURL is more sample efficient because it converges earlier. However, the best SAC+AE model ends at a similar score as the best CURL model. It even looks like SAC+AE has not looks like it has. This could imply that training longer may prove fruitful for SAC+AE.
 
-TODO write text for this plot\
-![compare_replay_size](images/compare_sac_and_curl_big.png)
+To check this, some of the runs were trained for a longer time. The result of this can be found in figure 4. 
+![compare_replay_size](images/compare_sac_and_curl_big.png)\
+*Figure 4: Training curves for 800k-1M environment steps.*
 ### Batch Size Comparison
 The performances of CURL and SAC+AE with batch size 256 are also compared with the original paper, where they used a batch size of 512. Table 1 shows the results of this comparison. It is clear that a batch size of 512 performs better than 256, as is to be expected. 
 
@@ -148,7 +158,7 @@ The figure visualizing the training based on training minutes shows clearly that
 ![freeze_encoder](images/freezed_encoder_steps.png) ![freeze_encoder_minutes](images/freezed_encoder_minutes.png)\
 *Figure 8: (left) Encoder frozen at timestep 400k. (right) Encoder frozen at timestep 400k with x axis visualized in training time in minutes.*
 ## Conclusion
-We experimented with the CURL and baseline algorithm SAC+AE and compared the performances on the DCS Cartpole environment. Sadly the full batch size of 512 could not be used but we could show the difference with the lower batch size of 256.\
+We experimented with the CURL and baseline algorithm SAC+AE and compared the performances on the DCS Cartpole environment. The full batch size of 512 could not be used but we could show the difference with the lower batch size of 256.\
 CURL and the SAC+AE actually produced very similar results for the first 500k timesteps. The reason that the paper performs better than that we showed can be explained by the difference in batch size.\
 Next to the testing the sample efficiency we compared the algorithms with different replay buffer sizes and showed that CURL performs better with a bigger replay buffer.\
 At last we analyzed the encoder by visualizing the featuremaps and found that freezing the encoder when the contrastive loss is low improved the training time and maintain the same performance.
