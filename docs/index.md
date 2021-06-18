@@ -72,11 +72,13 @@ The results of the aforementioned experiments are viewed in this section.
 
 The reward function over time of the the training of all models can be viewed in figure 3. From the CURL plots it is clear that a replay buffer size of 5k is less effective than one of 50k or 100k. between 50k and 100k there is no clear difference, suggesting they are equally good. With SAC+AE the result are unexpected. A replay buffer size of 5k seems to outperform 50k. The difference between 5k and 100k is less pronounced,but seems to be in the favor of 5k. The assumption is that this is an anomaly and that the training just got lucky. However, further research is necessary to confirm whether or not this is true.
 
-![compare_replay_size](images/CURL_and_Sac_compare.png)
+![compare_replay_size](images/CURL_and_Sac_compare.png)\
 *Figure 3: CURL and SAC+AE training curves with batch size 256 and replay buffer sizes 5k, 50k and 100k. The plot shows the moving average over the last 20k environment steps.*
 
 When comparing CURL to SAC+AE it is clear that CURL achieves higher scores in the early stages of the training. This confirms the findings of the authors that CURL is more sample efficient because it converges earlier. However, the best SAC+AE model ends at a similar score as the best CURL model. Therefore, there is no certainty that a longer training could have one outperforming the other in the long run. 
 
+TODO write text for this plot\
+![compare_replay_size](images/compare_sac_and_curl_big.png)
 ### Batch Size Comparison
 The performances of CURL and SAC+AE with batch size 256 are also compared with the original paper, where they used a batch size of 512. Table 1 shows the results of this comparison. It is clear that a batch size of 512 performs better than 256, as is to be expected. 
 
@@ -129,13 +131,12 @@ Our results of SAC+AE seem to be just below the performance (~550 for 500k envir
 
 ### Visualizing the encoder
 The encoder converts the image input into a smaller latent space. We can visualize the featuremaps of one of the convolutional layers to see what the encoder is focussing on.\
-A observation is given to the encoder model, the stack of its three images is visualized below:\
-![observation_image](images/example_observation_2.png)\
-and creates these 32 featuremaps after the first convolutional layer with Relu activation:\
-![encoder_visualization](images/featuremaps_conv_1.png).\
+A observation is given to the encoder model, the stack of its three images is visualized below and creates these 32 featuremaps after the first convolutional layer with Relu activation:\
+![observation_image](images/example_observation_2.png) ![encoder_visualization](images/featuremaps_conv_1_plot_3.png)\
 Some things can be noticed: Featuremaps analyze different timesteps, for example 1 and 2 analyze a different timestep as can be seen from the angle of the cartpole stick. 
 Second, a lot of featuremaps are not active at all. We are not sure why this is the case, it could be that 32 featuremaps are overkill for the first convolutional layer for this environment.
-For other observation inputs we can see the same set of featuremaps activated. The other observations of the same environment and  observations with featuremaps from a trained encoder created using a the Walker environment can be seen in the appendix.
+For other observation inputs we can see the same set of featuremaps activated.\
+The other observations of the same environment and  observations with featuremaps from a trained encoder created using the Walker environment can be seen in the appendix.
 
 ### Freezing the encoder
 We also analyzed freezing the encoder after 400k timesteps to see the increase in computational efficiency during training, since the encoder update is a big part of the whole training process.
