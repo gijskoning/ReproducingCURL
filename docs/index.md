@@ -56,7 +56,7 @@ This section introduces the experiments that are performed. It explains the fram
 All models are tested in the DMC suite [[4]](#4). This is a set of continous control tasks designed to test reinforcement learning models. Srinivas et al. [[1]](#1) evaluated CURL on 16 of these tasks. Because of time restrictions, this work only uses the cartpole swingup task. In this task the agent needs to swing a pole upwards and try to balance it as good as possible. It has to do this by moving the cart to the left and to the right.
 
 ![cartpole](images/cartpole.png)\
-*Figure 3: A frame of the cartpole swingup task with the pole nicely balanced* at the top.
+*Figure 3: A frame of the cartpole swingup task with the pole nicely balanced at the top.*
 
 ### Training Settings
 The replicated CURL model is evaluated with various setting. The original paper on CURL used a batch size of 512. This used too much video memory to be able to be run on the machines used for this work. Therefore a batch size of 256 was chosen. Another setting that needed to be toned down (for one of the machines at least) is the replay buffer size. The original paper used a replay buffer of 100k images, but we tested 50k and 5k as well. All other settings were set to the default values also used by Srinivas et al. [[1]](#1). 
@@ -74,10 +74,8 @@ The results of the aforementioned experiments are viewed in this section.
 
 The reward function over time of the the training of all models can be viewed in figure 4. From the CURL plots it is clear that a replay buffer size of 5k is less effective than one of 50k or 100k. Between 50k and 100k there is no clear difference, suggesting they are equally good. With SAC+AE the result are unexpected. A replay buffer size of 5k seems to outperform 50k. The difference between 5k and 100k is less pronounced, but seems to be in the favour of 5k. The assumption is that this is an anomaly and that the training just got lucky. Repeating runs multiple times can provide a statistical basis to  show whether or not this is true.
 
-![compare_replay_size](images/CURL_and_Sac_compare.png)
-![compare_replay_size](images/CURL_replay_compare.png)
-![compare_replay_size](images/SAC-AE_replay_compare.png)\
-*Figure 4: CURL and SAC+AE training curves with batch size 256 and replay buffer sizes 5k, 50k and 100k. The plots show the moving average over the last 20k environment steps. The right plot is a combination of the middle and left plots*
+![compare_replay_size](images/CURL_and_Sac_compare.png)\
+*Figure 4: CURL and SAC+AE training curves with batch size 256 and replay buffer sizes 5k, 50k and 100k.*
 
 When comparing CURL to SAC+AE it is clear that CURL achieves higher scores in the early stages of the training. This confirms the findings of the authors that CURL is more sample efficient because it converges earlier. However, the best SAC+AE model ends at a similar score as the best CURL model. However, it looks like SAC+AE is not nearing convergence. This could imply that training longer may prove fruitful for SAC+AE.
 
@@ -178,10 +176,10 @@ Yarats, D., Zhang, A., Kostrikov, I., Amos, B., Pineau, J., & Fergus, R. (2019).
 *Appendix Figure 2: (left) Third observation input of the Cartpole environment. (right) Featuremap output of the encoder.*
 ![freeze_encoder](images/walker_example_observation_0.png)
 ![freeze_encoder](images/walker_featuremaps_conv_1_plot_0.png)\
-*Appendix Figure 1: (left) First observation input of the Walker environment. (right) Featuremap output of the encoder.*
+*Appendix Figure 3: (left) First observation input of the Walker environment. (right) Featuremap output of the encoder.*
 ![freeze_encoder](images/walker_example_observation_2.png)
 ![freeze_encoder](images/walker_featuremaps_conv_1_plot_3.png)\
-*Appendix Figure 2: (left) Second observation input of the Walker environment. (right) Featuremap output of the encoder.*
+*Appendix Figure 4: (left) Second observation input of the Walker environment. (right) Featuremap output of the encoder.*
 ![freeze_encoder](images/walker_example_observation_1.png)
 ![freeze_encoder](images/walker_featuremaps_conv_1_plot_5.png)\
-*Appendix Figure 3: (left) Third observation input of the Walker environment. (right) Featuremap output of the encoder.*
+*Appendix Figure 5: (left) Third observation input of the Walker environment. (right) Featuremap output of the encoder.*
